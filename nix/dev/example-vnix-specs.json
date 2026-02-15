@@ -1,0 +1,24 @@
+{
+  "workspaces": [
+    {
+      "name": "vnix",
+      "tabs": [
+        {
+          "name": "Home",
+          "pane": {
+            "name": "Home"
+          }
+        }
+      ]
+    },
+    {
+      "name": "vnix-dev",
+      "layout": {
+        "name": "dev",
+        "opts": {
+          "cwd": "_cwd_"
+        }
+      }
+    }
+  ]
+}
