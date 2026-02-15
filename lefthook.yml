@@ -1,0 +1,17 @@
+pre-commit:
+  commands:
+    format-common:
+      glob: "*.{json,yml,yaml,json}"
+      run: biome check --write --no-errors-on-unmatched --files-ignore-unknown=true --colors=off {staged_files}
+    format-markdown:
+      glob: "*.{md,mdx}"
+      run: prettier --write {staged_files}
+      stage_fixed: true
+    format-plugin:
+      run: stylua {staged_files}
+      glob: "*.lua"
+      stage_fixed: true
+    format-flake:
+      run: alejandra {staged_files}
+      glob: "*.nix"
+      stage_fixed: true

@@ -1,0 +1,49 @@
+{
+  "workspaces": [
+    {
+      "name": "vnix-dev",
+      "layout": {
+        "name": "dev",
+        "opts": {
+          "cwd": "_cwd_"
+        }
+      }
+    },
+    {
+      "name": "vnix-dev-1",
+      "layout": {
+        "name": "dev",
+        "opts": {
+          "cwd": "_cwd_"
+        }
+      }
+    },
+    {
+      "name": "vnix",
+      "tabs": [
+        {
+          "name": "dev-home-t1",
+          "pane": {
+            "name": "dev-home-t1-p1"
+          }
+        },
+        {
+          "name": "dev-grid",
+          "pane": {
+            "name": "tl",
+            "first": "right",
+            "right": {
+              "name": "tr",
+              "bottom": {
+                "name": "br"
+              }
+            },
+            "bottom": {
+              "name": "bl"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
