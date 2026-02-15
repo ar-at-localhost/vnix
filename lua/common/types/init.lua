@@ -1,0 +1,30 @@
+---@class VNixConfig
+---@field keys? unknown # TODO: add key's type
+---@field vnix_dir? string Where to look for and store Vnix files? Default: ~/.vnix
+---@field specs_file_secondary? string Path to workspaces defination file. Default: nil
+---@field specs_file_primary? string Path to readonly workspaces defination file. Default: nil
+---@field status_update_interval? number
+---@field debug? boolean Enable debug mode
+---@field dev? boolean Enable dev mode-
+--------------------------------------------------------------------------------
+---@class VNixGlobal
+---@field vnix_dir? string
+---@field is_ready? boolean
+---@field user_home string Home directory of the user
+---@field home string Directory of the VNix
+---@field shell string
+---@field specs_file_secondary string
+---@field specs_file_primary string
+---@field specs_file_primary_out string
+---@field keybindings? VNixKeybindings
+---@field current_pane_index? number
+---@field runtime VnixRuntime
+---@field ui_next_req number
+---@field debug? boolean
+---@field _window_id? integer Temp save of GUI Window ID (Do not trust)
+--------------------------------------------------------------------------------
+---@class VnixRuntime
+---@field active_pane? VnixPaneState
+---@field focus VnixFocus
+---@field workspaces VnixWorkspaceState[]
+---@field panes VnixPanesFlat
