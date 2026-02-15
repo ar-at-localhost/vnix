@@ -1,0 +1,8 @@
+.direnv
+__pycache__
+.zed
+.ruff_cache
+.nvim/
+.pg/
+result*
+.envrc
