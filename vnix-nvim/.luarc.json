@@ -1,0 +1,30 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sumneko/vscode-lua/master/setting/schema.json",
+  "runtime": {
+    "version": "LuaJIT",
+    "path": [
+      "./lua/?.lua",
+      "./lua/?/?.lua",
+      "./lua/?/init.lua",
+      "${env:WEZTERM_LUA_TYPES}/?.lua",
+      "${env:WEZTERM_LUA_TYPES}/?/init.lua",
+      "${env:NVIM_SNACKS_LUA_TYPES}/?.lua",
+      "${env:NVIM_SNACKS_LUA_TYPES}/?/init.lua",
+      "${env:NVIM_ORGMODE_LUA_TYPES}/?.lua",
+      "${env:NVIM_ORGMODE_LUA_TYPES}/?/init.lua",
+      "../vnix-common/?.lua",
+      "../vnix-common/?/init.lua"
+    ]
+  },
+  "workspace": {
+    "library": [
+      "./lua/",
+      "../vnix-common",
+      "${env:VIMRUNTIME}/lua",
+      "${env:WEZTERM_LUA_TYPES}",
+      "${env:NVIM_SNACKS_LUA_TYPES}",
+      "${env:NVIM_ORGMODE_LUA_TYPES}",
+      "${3rd}/luv/library"
+    ]
+  }
+}

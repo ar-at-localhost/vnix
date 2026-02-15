@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sumneko/vscode-lua/master/setting/schema.json",
+  "runtime": {
+    "version": "LuaJIT",
+    "path": [
+      "?.lua",
+      "?/init.lua",
+      "${env:WEZTERM_LUA_TYPES}/?.lua",
+      "${env:WEZTERM_LUA_TYPES}/?/init.lua",
+      "${3rd}"
+    ]
+  },
+  "workspace": {
+    "library": [
+      "${env:VIMRUNTIME}/lua",
+      "../vnix-common",
+      "${env:WEZTERM_LUA_TYPES}",
+      "${3rd}/busted/library"
+    ]
+  }
+}

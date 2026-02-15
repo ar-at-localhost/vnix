@@ -1,0 +1,47 @@
+#+title: Vnix
+#+author: Ahmad Raza <pro.se.ahmad.raza.1@gmail.com>
+
+* TODO Introduce tags :feat:workspaces:filters:
+  The workspaces / tabs / panes should've tags associated to quickly filter by tags.
+  DEADLINE: [2026-03-01 Sun]
+
+* TODO Introduce quick filter in Snacks Pane picker :feat:panes:filters:
+  Snacks pane picker should allow from quick search through Workspaces / Tabs / Panes.
+  - ~ALT+w~ Reduce results to 1 per workspaces
+  - ~ALT+t~ Reduce results to tabs in active workspace, or ~w>~ where ~w~ is the target workspace.
+  DEADLINE: [2026-03-01 Sun]
+
+* TODO Supercharge Org Mode :feat:orgmode:
+  Mixing Nivm orgmode with Vnix can bring some good features, especially for *DEV* workspaces.
+  This can allow user to select / track tasks on various worskpaces.
+  Non-dev workspaces can actually utilize user's global org files for tasking.
+** TODO Org Captures :feat:orgmode:agenda:
+   - Introduce Org-mode keybindings
+     - ~<L>oc~ Capture
+       *DEV* Workspace: Capture task to workspace's notes file.
+       *!DEV* Workspace: If non-dev workspace, capture to user's level notes file.
+** TODO Org Agenda :feat:orgmode:agenda:
+   - Introduce Org-mode keybindings
+     - ~<L>oa~ Quick Agenda view for current week
+     - ~<L>oA~ Agenda prompt
+** TODO Task Tracking :feat:orgmode:clock:
+
+*** TODO Show clock status
+    Status bar should be display some status regarding clocking.
+    - If it is clocked in to some task, show clock & time tracked so far.
+    - If it isn't yet clocked-in, show Paused status (to encourage selecting a task)
+    - Allow explicit pause of the time tracker.
+
+    Keybindings:
+    - ~<L>ot~ Switch task (workspace local)
+      - Can be used to explore tasks, without having to switch (by pressing ~ESC~).
+	This can be useful to glance through tasks, using Snacks Picker.
+    - ~<L>oc~ Toggle Clock-in / Clock-out (workspace local)
+*** TODO Task prompt
+   Upon visiting workspace for the first time, it might be wise to prompt for the task.
+   - If user prefers a tasks (or creates a new one) Clock into it.
+      - Respect user's choice not to clock in.
+      - Respect user's choice if clock is explicity disabled.
+   - If it is a Non-Dev workspace, create task in user's global tasks / notes files (~$HOME/.vnix/orgfiles/notes.org~).
+** TODO Allow specifying notes files
+   It might be useful to let the user choose the org-file path, especially with non-dev workspaces.
