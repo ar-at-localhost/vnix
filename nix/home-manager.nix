@@ -181,7 +181,7 @@
         description = "Status update interval in milliseconds";
       };
 
-      specs = {
+      specs = lib.mkOption {
         description = "Vnix Specifications";
         type = lib.types.submodule {
           options = {
