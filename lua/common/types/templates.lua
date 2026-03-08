@@ -1,10 +1,5 @@
 --- @alias VnixWorkspaceLayoutName 'scratch' | 'dev'
 
---- @class VnixWorkspaceLayout
---- @field name VnixWorkspaceLayoutName
---- @field desc string
---- @field form VnixFormSpec?
----
 ---@class VnixFormSpec
 ---@field title? string
 ---@field desc? string

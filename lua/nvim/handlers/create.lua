@@ -16,15 +16,15 @@ function M.create_workspce(req)
     {
       prompt = "Select a workspace template:",
       format_item = function(item)
-        ---@cast item VnixWorkspaceLayout
+        ---@cast item VnixWorkspaceTemplate
         return string.format("%s (%s)", item.name, item.desc)
       end,
     },
 
-    ---@param item VnixWorkspaceLayout
+    ---@param item VnixWorkspaceTemplate
     function(item)
       ---cb
-      ---@param o unknown?
+      ---@param o? { id: string; name: string}
       local function next(o)
         ---@type UIMessageCreateWorkspaceRespData
         local data = {
@@ -33,8 +33,8 @@ function M.create_workspce(req)
             name = "",
             tabs = {},
             layout = {
-              name = item.name,
-              opts = o,
+              name = item.id,
+              opts = o or {},
             },
           },
         }
@@ -70,7 +70,7 @@ function M.create_tab(req)
     {
       prompt = "Select a tab template:",
       format_item = function(item)
-        ---@cast item VnixWorkspaceLayout
+        ---@cast item VnixWorkspaceTemplate
         return string.format("%s (%s)", item.name, item.desc)
       end,
     },
