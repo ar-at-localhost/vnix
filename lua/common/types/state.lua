@@ -18,7 +18,7 @@
 ---@field workspace string name of the workspace
 ---@field tab string name of the tab
 ---@field tab_id number wezterm id
----@field tab_idx number wezterm id
+---@field tab_idx number tab index (0-based)
 
 ---@alias VnixFocus table<string, VnixPaneState?>
 

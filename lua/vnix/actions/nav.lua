@@ -61,7 +61,7 @@ local function switch_tab(win, pane, offset)
   if active_pane then
     local workspace = state.find_workspace_by_name(active_pane.workspace)
     if workspace then
-      index = workspace and ((active_pane.tab_idx + offset) % (#workspace.tabs - 1)) or index
+      index = workspace and ((active_pane.tab_idx + offset) % #workspace.tabs) or index
     end
   end
 
