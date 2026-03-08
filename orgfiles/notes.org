@@ -2,18 +2,55 @@
 #+author: Ahmad Raza <pro.se.ahmad.raza.1@gmail.com>
 
 * TODO: Improve basic workflows
-  There are certain features lacking basic expectations, those should be consider to be available ASAP.
-** TODO Create a workspace on the fly
+  There are certain features lacking basic expectations, those should be considered to be available ASAP.
+** DONE Create a workspace on the fly
+*** Keys
+    - ~<leader>+~ Create a new workspace or tab
+    It shows a menu to choose the type and then shows a form to fill and create it.
+    - *Form Keys*
+      - ~<leader><CR>~ Create
+
+*** Original Idea
    Let the user quickly create a new workspace.
    - Allow to choose Layouts.
    - Allow to choose basic options:
      - Name
      - CWD
 
-** IDEA Persist current workspace state
+** DONE Persist current workspace state
+   - Let the user choose 2 config files
+     - *Primary*
+       A primary specs file contains user's defined (maybe Nix generated) specs
+       for initial reads (definitions). It can be either JSON, or Nix (though
+       the generated primary source is always Nix).
+
+       It has 2 parts, the readonly path and the write path.
+       Readonly path is ~$HOME/.vnix/vnix.json~. Vnix doesn't overwrite it.
+       Write path is specified by config option ~specs_file_primary~. Vnix will write it and forget.
+       
+       Vnix auto-reads Primary source if secondary source isn't available.
+       Keys: ~<leader>P~ Persist primary source
+    - *Secondary*
+       A secondary spec is reflection of runtime specs. It is beneficial for restoring,
+       modified state of Vnix upon next start. It can be overwritten by manually saving,
+       or future auto-save option.
+       Keys: ~<leader>p~ Persist secondary source
+
+    *TLD;R*
+    Primary source is a readonly backup. Define your workspaces in primary source file.
+    Feel free to create new panes / tabs or workspaces on the fly. Keep your changes in secondary source.
+    When you wish to make them primary source - manually save.
+
+    *Why*
+    It let you keep declarative manners of Nix. Define workspaces in your config.
+    Don't run to declarations, just for saving another pane, keep saving in secondary
+    save. When you're going to rebuild system (or home), save it to primary source if you
+    generate new config based on it.
+
+*** Original Ideas
    If user makes changes to the running panes, i.e. deleting a pane, tab or workspace,
    it is currently only affecting the session and upon next session, it is restored from
-   workspaces's file. That's perfect to make things persistance, however has an undesired
+   workspaces's file. That's perfect to make things persistence, however has an undesired
    side-effect or losing decisions.
 
    There should be some way to persist back the current state.
@@ -21,7 +58,7 @@
    would defeat the declarations of Nix's workspace file specs.
 
    Maybe we can choose between the two:
-   A. Let the user forcefully overwise the workspace's file.
+   A. Let the user forcefully overwrite the workspace's file.
    B. Update the user specified Nix module to persist declarations back.
 
    For example, I've many workspaces declared through Nix. While at run-time,
@@ -29,31 +66,31 @@
    since it did affect the state, but not workspace's file. How to persist such
    an action?
    - Provide a shortcut to persist to currently set workspace file.
-   - Allow user to choose the Nix module location, where it keeps its declartion,
-     upon certain action, generate a nix expression (attrSet) translated from
+   - Allow user to choose the Nix module location, where it keeps its declaration,
+      upon certain action, generate a Nix expression (attrSet) translated from
      current state to Nix specs. User can re-build it later to persist the decisions.
      This will also let the user actually review its decision before committing.
-     This is quite ackward solution, but it aligns with VNix philosphy of declarative
-     workspaces and separation of concern between run-time state and declrations.
+     This is quite awkward solution, but it aligns with VNix philosophy of declarative
+     workspaces and separation of concern between run-time state and declarations.
 * TODO Introduce tags :feat:workspaces:filters:
-  The workspaces / tabs / panes should've tags associated to quickly filter by tags.
+  The workspaces / tabs / panes should have tags associated to quickly filter by tags.
   DEADLINE: [2026-03-01 Sun]
 
 * TODO Introduce quick filter in Snacks Pane picker :feat:panes:filters:
   Snacks pane picker should allow from quick search through Workspaces / Tabs / Panes.
-  - ~ALT+w~ Reduce results to 1 per workspaces
+  - ~ALT+w~ Reduce results to 1 per workspace
   - ~ALT+t~ Reduce results to tabs in active workspace, or ~w>~ where ~w~ is the target workspace.
   DEADLINE: [2026-03-01 Sun]
 
 * TODO Supercharge Org Mode :feat:orgmode:
-  Mixing Nivm orgmode with Vnix can bring some good features, especially for *DEV* workspaces.
-  This can allow user to select / track tasks on various worskpaces.
+  Mixing Neovim orgmode with Vnix can bring some good features, especially for *DEV* workspaces.
+  This can allow user to select / track tasks on various workspaces.
   Non-dev workspaces can actually utilize user's global org files for tasking.
 ** TODO Org Captures :feat:orgmode:agenda:
    - Introduce Org-mode keybindings
      - ~<L>oc~ Capture
        *DEV* Workspace: Capture task to workspace's notes file.
-       *!DEV* Workspace: If non-dev workspace, capture to user's level notes file.
+       *!DEV* Workspace: If non-dev workspace, capture to user's global notes file.
 ** TODO Org Agenda :feat:orgmode:agenda:
    - Introduce Org-mode keybindings
      - ~<L>oa~ Quick Agenda view for current week
@@ -73,9 +110,9 @@
     - ~<L>oc~ Toggle Clock-in / Clock-out (workspace local)
 *** TODO Task prompt
    Upon visiting workspace for the first time, it might be wise to prompt for the task.
-   - If user prefers a tasks (or creates a new one) Clock into it.
+   - If user prefers a task (or creates a new one) Clock into it.
       - Respect user's choice not to clock in.
-      - Respect user's choice if clock is explicity disabled.
+      - Respect user's choice if clock is explicitly disabled.
    - If it is a Non-Dev workspace, create task in user's global tasks / notes files (~$HOME/.vnix/orgfiles/notes.org~).
 ** TODO Allow specifying notes files
    It might be useful to let the user choose the org-file path, especially with non-dev workspaces.
@@ -83,5 +120,5 @@
 
 ** TODO BUGS
 ** TODO Search needs a touch
-   Due to async nature, if the Vnix-Nvim is load after the state write, it may miss the state update event,
+   Due to async nature, if the Vnix-Nvim is loaded after the state write, it may miss the state update event,
    causing the search to be empty.
