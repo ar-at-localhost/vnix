@@ -118,7 +118,7 @@
    It might be useful to let the user choose the org-file path, especially with non-dev workspaces.
 
 
-** TODO BUGS
+* TODO BUGS
 ** TODO Search needs a touch
    Due to async nature, if the Vnix-Nvim is loaded after the state write, it may miss the state update event,
    causing the search to be empty.
