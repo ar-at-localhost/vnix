@@ -47,7 +47,7 @@ wezterm.on(
           active_pane
         )
 
-        gui_window:perform_action(wezterm.action.ActivateTab(tab_idx), active_pane)
+        gui_window:perform_action(wezterm.action.ActivateTab(tab_idx - 1), active_pane)
         gui_window:perform_action(wezterm.action.ActivatePaneByIndex(pane.idx or 0), active_pane)
 
         wezterm.time.call_after(0, function()
