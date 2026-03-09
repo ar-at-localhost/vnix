@@ -60,6 +60,10 @@ function M.apply_to_config(config, opts)
   config.status_update_interval = final_opts.status_update_interval
     or config.status_update_interval
     or nil
+
+  if opts.debug then
+    require("vnix.debug").setup_dev_watch()
+  end
 end
 
 return M

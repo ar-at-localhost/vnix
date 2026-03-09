@@ -11,7 +11,6 @@
   },
   "workspace": {
     "library": [
-      "./lua/",
       "${env:WEZTERM_LUA_TYPES}",
       "${env:NVIM_SNACKS_LUA_TYPES}",
       "${env:NVIM_ORGMODE_LUA_TYPES}",

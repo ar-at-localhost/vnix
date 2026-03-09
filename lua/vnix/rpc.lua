@@ -1,9 +1,24 @@
 local wezterm = require("wezterm")
+local common = require("common")
 local time = require("common.time")
 local act = wezterm.action
 local vnix = wezterm.GLOBAL.vnix
 
 local M = {}
+
+---UI Dispatch remote cmd
+---@param cmd string
+function M.dispatch_cmd(cmd)
+  local full_cmd = string.format(
+    "vnix-nvim --server %s --remote-send \"<cmd>Vnix %s<cr>\"",
+    common.VNIX_NVIM_SOCK_PATH,
+    cmd
+  )
+
+  local cmd_table = wezterm.shell_split(full_cmd)
+  print(cmd_table)
+  wezterm.background_child_process(cmd_table)
+end
 
 ---UI Dispatch action
 ---@param win Window

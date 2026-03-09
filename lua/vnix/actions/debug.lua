@@ -1,5 +1,16 @@
 local wezterm = require("wezterm")
 local rpc = require("vnix.rpc")
+local vnix = wezterm.GLOBAL.vnix
+
+wezterm.on(
+  "window-config-reloaded",
+  ---cb
+  function()
+    if vnix and vnix.debug and vnix.is_ready then
+      rpc.dispatch_cmd("reload")
+    end
+  end
+)
 
 wezterm.on(
   "vnix:debug",

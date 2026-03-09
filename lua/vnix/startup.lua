@@ -1,3 +1,4 @@
+local common = require("common")
 local wezterm = require("wezterm")
 local mux = require("vnix.mux")
 local config = require("vnix.config")
@@ -21,7 +22,8 @@ end
 
 ---@param arg VnixSpecs
 function M.restore(arg)
-  local nvim_cmd = "vnix-nvim +'Vnix setup'"
+  local nvim_cmd =
+    string.format([[vnix-nvim --listen %s +'Vnix setup']], common.VNIX_NVIM_SOCK_PATH)
 
   -- FIXME: Accept the shell cmd overrides from user
   -- Detect if the shell is fish
