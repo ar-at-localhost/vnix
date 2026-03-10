@@ -343,6 +343,22 @@
     },
     "nixpkgs_3": {
       "locked": {
+        "lastModified": 1768323494,
+        "narHash": "sha256-yBXJLE6WCtrGo7LKiB6NOt6nisBEEkguC/lq/rP3zRQ=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "2c3e5ec5df46d3aeee2a1da0bfedd74e21f4bf3a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-25.11",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_4": {
+      "locked": {
         "lastModified": 1764522689,
         "narHash": "sha256-SqUuBFjhl/kpDiVaKLQBoD8TLD+/cTUzzgVFoaHrkqY=",
         "owner": "NixOS",
@@ -384,10 +400,7 @@
     "nixvim_2": {
       "inputs": {
         "flake-parts": "flake-parts_2",
-        "nixpkgs": [
-          "np",
-          "nixpkgs"
-        ],
+        "nixpkgs": "nixpkgs_3",
         "nuschtosSearch": "nuschtosSearch_2",
         "systems": "systems_5"
       },
@@ -416,11 +429,11 @@
         "proselint": "proselint"
       },
       "locked": {
-        "lastModified": 1772722167,
-        "narHash": "sha256-RYbF5VHC9bj7lW7OVQWTZSNUWWeRx91rsJxeIaJIRNA=",
+        "lastModified": 1773120468,
+        "narHash": "sha256-WrXYFCjAItODcd6AarvBfvST8gvFvCamv6xorDTSjgk=",
         "owner": "ar-at-localhost",
         "repo": "np",
-        "rev": "0c1a1e60842567ac4448c93c8e33d140fdc39ce7",
+        "rev": "8fc5e2ff87788431c813abb26e8db2c95584b76a",
         "type": "github"
       },
       "original": {
@@ -481,7 +494,7 @@
       "inputs": {
         "build-systems": "build-systems",
         "hooks": "hooks",
-        "nixpkgs": "nixpkgs_3",
+        "nixpkgs": "nixpkgs_4",
         "pyproject": "pyproject",
         "uv": "uv"
       },
