@@ -429,11 +429,11 @@
         "proselint": "proselint"
       },
       "locked": {
-        "lastModified": 1773120468,
-        "narHash": "sha256-WrXYFCjAItODcd6AarvBfvST8gvFvCamv6xorDTSjgk=",
+        "lastModified": 1773151587,
+        "narHash": "sha256-WnExue5wM5joZfAAButQe5x0cPN28QJMrCJRGQeWwwY=",
         "owner": "ar-at-localhost",
         "repo": "np",
-        "rev": "8fc5e2ff87788431c813abb26e8db2c95584b76a",
+        "rev": "e87c0958f7b11f14d5b32c3f5ac0298943e8892e",
         "type": "github"
       },
       "original": {
