@@ -10,6 +10,7 @@ function M.setup(opts)
   if opts and opts.vnix_dir then
     o.vnix_dir = opts.vnix_dir
     o._ns = vim.api.nvim_create_namespace("vnix")
+    require("nvim.pickers")()
     require("nvim.dashboard")()
     require("nvim.fs-watch").setup()
   end

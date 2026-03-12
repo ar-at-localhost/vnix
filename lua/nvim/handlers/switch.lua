@@ -1,59 +1,7 @@
 local resp = require("nvim.resp")
+local config = require("nvim.config")
+
 local M = {}
-
----Convert pane state to Snacks Picker item
----@param id number
----@param pane VnixPaneFlat
----@return snacks.picker.Item
-local function to_item(id, pane)
-  local str = require("common.str")
-
-  ---@type snacks.picker.Item
-  local item = {
-    id = id,
-    idx = id,
-    score = 0,
-
-    text = string.format(
-      "%s > %s > %s",
-      str.pad(pane.workspace, 16),
-      str.pad(pane.tab_name, 16),
-      str.pad(pane.pane_name, 16)
-    ),
-
-    preview = {
-      ft = "markdown",
-      text = string.format(
-        [[# Pane Info
-
-**Workspace**: %s
-**Tab**: %s
-**Pane**: %s
-]],
-        pane.workspace,
-        pane.tab_name,
-        pane.pane_name
-      ),
-    },
-    value = pane,
-  }
-
-  return item
-end
-
----Convert pane state objects to Snacks Picker items
----@param data VnixPaneFlat[]
----@return snacks.picker.Item[]
-local function to_items(data)
-  ---@type VnixPaneFlat[]
-  local out = {}
-
-  for _, v in ipairs(data) do
-    table.insert(out, to_item(v.pane_id, v))
-  end
-
-  return out
-end
 
 ---@param req? UIMessageSwitchReq | true
 function M.handle(req)
@@ -75,24 +23,17 @@ function M.handle(req)
     end
   end
 
-  local SnacksPicker = require("snacks.picker")
-  ---@type snacks.Picker | nil
-  local items = to_items(vnix.flat_panes)
+  local picker = config.pickers.switch
 
-  local picker = SnacksPicker.pick(nil, {
-    items = items,
-    format = "text",
-    preview = "preview",
-    auto_confirm = false,
-    confirm = function(self, item)
-      ---@cast req UIMessageSwitchReq
-      resp.write(resp.create_from_req(req, item.id))
-      self:close()
-    end,
-  })
+  if not picker then
+    picker = "pane"
+    config.pickers.switch = picker
+  end
 
   if picker then
-    picker:show()
+    Snacks.picker.resume({
+      source = picker,
+    })
   end
 end
 

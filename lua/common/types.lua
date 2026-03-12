@@ -76,19 +76,27 @@
 
 ---@class VNixNvimOpts
 ---@field vnix_dir string
----
+
 ---@class VNixNvimState
+---@field G VNixNvimGlobalState
 ---@field vnix_dir string vnix directory path
+---@field src_dir? string vnix directory path
 ---@field _ns integer unknown
 ---@field flat_panes VnixPanesFlat Vnix panes state
+---@field active_pane VnixPaneState?
 ---@field workspaces VnixWorkspace[] Vnix panes state
 ---@field return_to number where to return (last pane idx)
 ---@field dev_workspaces table<string, { cwd: string, idx: number }>
 ---@field dashboard snacks.dashboard.Class?
+---@field pickers VnixActivePickers
 ---@field pad_half string
 ---@field pad string
 ---@field rpc RPCDebug[]
+---@field rpc_active UIMessageReqBase?
 ---@alias RPCDebug { req: UIMessageReqBase, resp: UIMessageRespBase }
+
+---@class VNixNvimGlobalState
+---@field watchers table<'vnix' | 'dev', uv.uv_fs_event_t?>
 
 ---@class PanesWithInfo
 ---@field index number

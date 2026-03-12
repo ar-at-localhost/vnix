@@ -16,7 +16,6 @@ function M.dispatch_cmd(cmd)
   )
 
   local cmd_table = wezterm.shell_split(full_cmd)
-  print(cmd_table)
   wezterm.background_child_process(cmd_table)
 end
 
@@ -97,9 +96,16 @@ function M.parse(win, pane, data)
   end
 
   --- Switch Message Type
-  if parsed.type == "switch" or parsed.type == "inspect" then
+  if parsed.type == "switch" then
     ---@cast parsed UIMessageSwitchResp
-    return wezterm.emit("vnix:switch-to", parsed.data)
+
+    if parsed.data and parsed.data.kind == "tab" then
+      return wezterm.emit("vnix:switch-to-tab", parsed.data.id)
+    elseif parsed.data and parsed.data.kind == "workspace" then
+      return wezterm.emit("vnix:switch-to-workspace", parsed.data.id)
+    else
+      return wezterm.emit("vnix:switch-to", parsed.data.id)
+    end
   end
 end
 

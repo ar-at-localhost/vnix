@@ -22,9 +22,15 @@ function M.create(type, data)
 end
 
 ---Close back to the last pane of Vnix
----@param req UIMessageReqBase
+---@param req UIMessageReqBase?
 ---@return UIMessageRespBase
 function M.create_from_req(req, data)
+  req = req or config.rpc_active or {
+    type = "switch",
+    id = 0,
+    timestamp = "",
+  }
+
   return {
     type = req.type,
     id = req.id,

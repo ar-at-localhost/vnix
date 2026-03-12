@@ -42,9 +42,9 @@ function M.load()
   local vnix = wezterm.GLOBAL.vnix
 
   --- @type VnixSpecs?
-  local specs, ok = fs.read_json(vnix.specs_file_secondary)
+  local specs, err = fs.read_json(vnix.specs_file_secondary)
 
-  if not ok or not specs then
+  if not specs then
     specs = fs.safe_read_json(
       vnix.specs_file_primary_out,
       ---@type VnixSpecs

@@ -9,4 +9,3 @@ globals:
     any: true
   _G:
     any: true
-    property: read-only

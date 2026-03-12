@@ -8,6 +8,7 @@ function M.handle_request(req)
   else
     config.last_known_req = req.id
     config.return_to = req.return_to or config.return_to or 2
+    config.rpc_active = req
   end
 
   -- FIXME: Make conditional for debug

@@ -81,7 +81,15 @@
 
 ---@class UIMessageSwitchResp :UIMessageRespBase
 ---@field type 'switch'
----@field data? number Where to switch to? `nil`: no where, 0: last active, +ve int: to given, -ve int: ignore
+---@field data? UIMessageSwitchRespWorkspaceData | UIMessageSwitchRespData
+
+---@class UIMessageSwitchRespWorkspaceData
+---@field kind 'workspace'
+---@field id string
+---
+---@class UIMessageSwitchRespData
+---@field kind 'tab' | 'pane'
+---@field id number
 
 ---@class UIMessagePersistReq :UIMessageReqBase
 ---@field type 'persist'

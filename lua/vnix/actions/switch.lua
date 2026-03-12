@@ -1,6 +1,9 @@
 local wezterm = require("wezterm")
 local vnix_mux = require("vnix.mux")
 local rpc = require("vnix.rpc")
+local events = require("vnix.events")
+local state = require("vnix.state")
+
 ---@type VNixGlobal
 local vnix = wezterm.GLOBAL.vnix
 
@@ -18,6 +21,42 @@ wezterm.on("vnix:switch", function(win, pane)
   })
 end)
 
+events.make_event(
+  "vnix:switch-to-workspace",
+  ---@param workspace string
+  function(workspace)
+    local w = state.find_workspace_by_name(workspace)
+
+    local pane = vnix.runtime.active_pane
+
+    if w then
+      pane = vnix.runtime.focus[w.name] or w.tabs[1].pane
+    end
+
+    wezterm.emit("vnix:switch-to", pane and pane.id or nil)
+  end
+)
+
+events.make_event(
+  "vnix:switch-to-tab",
+  ---@param tab_id number
+  function(tab_id)
+    local pane = vnix.runtime.active_pane
+
+    if pane then
+      local workspace = state.find_workspace_by_name(pane.workspace)
+      if workspace then
+        local tab = state.find_tab_by_id(workspace, tab_id)
+        if tab then
+          pane = vnix.runtime.focus[workspace.name .. "." .. tab.name] or tab.pane
+        end
+      end
+    end
+
+    wezterm.emit("vnix:switch-to", pane and pane.id or nil)
+  end
+)
+
 wezterm.on(
   "vnix:switch-to",
   ---cb
@@ -25,7 +64,6 @@ wezterm.on(
   ---@param cb? fun(ok: boolean, win?: Window, err?: string)
   function(id, cb)
     local ok, err = pcall(function()
-      local state = require("vnix.state")
       local pane, tab, tab_idx, workspace = state.find_pane_by_id(id)
 
       if pane and tab and workspace then

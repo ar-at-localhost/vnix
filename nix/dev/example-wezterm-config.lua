@@ -26,9 +26,7 @@ config.unix_domains = {
 local vnix = require("vnix")
 vnix.apply_to_config(config, {
   vnix_dir = "/tmp/vnix-dev",
-  specs_file_secondary = "specs.json",
-  -- FIXME: This can be absolute
-  specs_file_primary = "specs.nix",
+  specs_file_primary = "specs.json",
   debug = true,
   dev = true,
 })
