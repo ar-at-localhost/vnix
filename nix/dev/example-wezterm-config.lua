@@ -14,6 +14,7 @@ config.status_update_interval = 60000
 config.window_decorations = "NONE"
 config.mouse_wheel_scrolls_tabs = false
 config.default_cursor_style = "BlinkingBlock"
+config.automatically_reload_config = false
 
 config.unix_domains = {
   ---@diagnostic disable-next-line: missing-fields

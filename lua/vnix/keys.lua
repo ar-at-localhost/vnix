@@ -106,6 +106,12 @@ function M.get_defaults()
       end),
       description = "Create new workspace",
     },
+    reload = {
+      key = "R",
+      mods = "LEADER|SHIFT",
+      action = act.ReloadConfiguration,
+      description = "Reload configurations",
+    },
     split_bottom = {
       key = "-",
       mods = "LEADER",
@@ -215,7 +221,7 @@ function M.get_defaults()
       description = "Dashboard",
     },
     debug = {
-      key = "d",
+      key = "D",
       mods = "LEADER|SHIFT",
       action = act.EmitEvent("vnix:debug"),
       description = "Debugging",

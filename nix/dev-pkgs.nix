@@ -22,7 +22,7 @@
     else cwd;
 
   example__vnix__config_orig = builtins.readFile ./dev/example-vnix-specs.json;
-  example__vnix__config = builtins.replaceStrings ["_cwd_"] [(toString ../.)] example__vnix__config_orig;
+  example__vnix__config = builtins.replaceStrings ["_cwd_"] [plugin_dir] example__vnix__config_orig;
   example_wezterm_cfg = builtins.readFile ./dev/example-wezterm-config.lua;
 
   specs_json = pkgs.writeTextFile {

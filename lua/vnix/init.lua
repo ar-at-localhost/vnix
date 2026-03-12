@@ -60,6 +60,9 @@ function M.apply_to_config(config, opts)
   config.status_update_interval = final_opts.status_update_interval
     or config.status_update_interval
     or nil
+
+  local debug = require("vnix.debug")
+  debug.handle_reload()
 end
 
 return M
