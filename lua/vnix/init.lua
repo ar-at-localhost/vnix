@@ -12,6 +12,7 @@ require("vnix.actions.rename")
 require("vnix.actions.state")
 require("vnix.actions.status-bar")
 require("vnix.actions.switch")
+require("vnix.actions.tab")
 require("vnix.actions.ui")
 
 wezterm.on("gui-startup", function()

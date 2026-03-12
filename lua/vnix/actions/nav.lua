@@ -1,6 +1,7 @@
 local wezterm = require("wezterm")
 local state = require("vnix.state")
 local activity = require("vnix.activity")
+local mux = require("vnix.mux")
 local vnix = wezterm.GLOBAL.vnix
 
 -- Helper to perform a WezTerm action and refresh vnix state
@@ -54,14 +55,28 @@ local function switch_workspace(win, pane, offset)
 end
 
 ---Tab navigation (relative to current tab)
-local function switch_tab(win, pane, offset)
+---@param win Window
+---@param pane Pane
+---@param offset_or_idx? integer Provide +1/-1 or exact index (except 1 - which will be taken as `offset`)
+local function switch_tab(win, pane, offset_or_idx)
   local index = 0
   local active_pane = vnix.runtime.active_pane
 
-  if active_pane then
+  if offset_or_idx ~= 1 and offset_or_idx ~= -1 then
+    index = offset_or_idx
+  elseif active_pane then
     local workspace = state.find_workspace_by_name(active_pane.workspace)
     if workspace then
-      index = workspace and ((active_pane.tab_idx + offset) % #workspace.tabs) or index
+      local _, tab_idx = state.find_tab_by_id(workspace, active_pane.tab_id)
+      local idx = (((tab_idx - 1) + offset_or_idx) % #workspace.tabs) + 1
+      local target_tab = workspace.tabs[idx]
+
+      if target_tab then
+        local _, i = mux.find_tab(target_tab.id)
+        if i then
+          index = i
+        end
+      end
     end
   end
 
@@ -96,11 +111,11 @@ wezterm.on("vnix:nav-tab-prev", function(win, pane)
 end)
 
 wezterm.on("vnix:nav-tab-first", function(win, pane)
-  switch_tab(win, pane, -#win:tabs()) -- go to first tab
+  switch_tab(win, pane, 0)
 end)
 
 wezterm.on("vnix:nav-tab-last", function(win, pane)
-  switch_tab(win, pane, 0) -- go to last tab
+  switch_tab(win, pane, #win:tabs())
 end)
 
 -- Workspace navigation

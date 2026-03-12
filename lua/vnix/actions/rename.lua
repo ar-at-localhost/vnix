@@ -38,7 +38,7 @@ end
 ---@param skip_update boolean?
 ---@diagnostic disable-next-line: unused-local
 function M.rename_tab(win, pane, tid, name, skip_update)
-  local tab, mux_win = mux.find_tab(tid)
+  local tab, _, mux_win = mux.find_tab(tid)
   if not tab or not mux_win then
     error(string.format("No such tab: %d", tid))
   end

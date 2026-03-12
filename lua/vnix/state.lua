@@ -314,6 +314,8 @@ function M.traverse_all_panes(cb)
 end
 
 ---Find a tab by Wezterm ID
+---@return MuxTab
+---@return integer
 function M.find_tab_by_id(workspace, id)
   for i, t in ipairs(workspace.tabs) do
     if t.id == id then

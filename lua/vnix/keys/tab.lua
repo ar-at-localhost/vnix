@@ -18,6 +18,18 @@ local workspace = {
       action = act.EmitEvent("vnix:kill-tab"),
       description = "Create new workspace",
     },
+    swap_tab_right = {
+      key = ")",
+      mods = "LEADER|SHIFT",
+      action = act.EmitEvent("vnix:swap-tab-right"),
+      description = "Swap tab with right tab",
+    },
+    swap_tab_left = {
+      key = "(",
+      mods = "LEADER|SHIFT",
+      action = act.EmitEvent("vnix:swap-tab-left"),
+      description = "Swap tab with previous tab",
+    },
   },
   tables = {},
 }

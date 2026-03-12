@@ -295,24 +295,19 @@ end
 
 ---Find Mux tab
 ---@param id number Wezterm Tab ID
----@return MuxTab?
----@return MuxWindow?
+---@return MuxTab? tab Mux Tab
+---@return integer? idx Tab index (0-based)
+---@return MuxWindow? win Mux Window
 function M.find_tab(id)
   local all_windows = mux.all_windows()
 
-  ---@type MuxTab, MuxWindow
-  local tab, win = nil, nil
-
   for _, w in ipairs(all_windows) do
-    for _, t in ipairs(w:tabs()) do
+    for i, t in ipairs(w:tabs()) do
       if t:tab_id() == id then
-        tab, win = t, w
-        break
+        return t, i - 1, w
       end
     end
   end
-
-  return tab, win
 end
 
 return M
