@@ -16,7 +16,6 @@
 ---@field specs_file_secondary string
 ---@field specs_file_primary string
 ---@field specs_file_primary_out string
----@field keybindings? VNixKeybindings
 ---@field current_pane_index? number
 ---@field runtime VnixRuntime
 ---@field ui_next_req number
@@ -24,6 +23,7 @@
 ---@field _window_id? integer Temp save of GUI Window ID (Do not trust)
 --------------------------------------------------------------------------------
 ---@class VnixRuntime
+---@field keybindings? VNixKeybindingInfo[]
 ---@field active_pane? VnixPaneState
 ---@field focus VnixFocus
 ---@field workspaces VnixWorkspaceState[]

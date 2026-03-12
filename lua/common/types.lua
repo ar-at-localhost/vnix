@@ -7,13 +7,6 @@
 ---@field safe_read_json fun(path: string, fallback: table): table Safely read table, write fallback if don't exists
 ---@field obj_to_tbl fun(obj: unknown) Convert an object to a table, useful when reading Array data from JSON files
 
----@class VNixKeybinding
----@field key string
----@field mods? string
----@field description? string
----@field group? string
-
----@alias VNixKeybindings VNixKeybinding[]
 ---@alias SpecType 'pane' | 'layout'
 
 ---@class PaneRequireds

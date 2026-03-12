@@ -110,4 +110,26 @@ function M.find_one(tbl, check)
   end
 end
 
+function M.deep_merge(...)
+  local result = {}
+
+  local function merge_into(target, src)
+    for k, v in pairs(src) do
+      if type(v) == "table" and type(target[k]) == "table" then
+        merge_into(target[k], v)
+      else
+        target[k] = v
+      end
+    end
+  end
+
+  for _, tbl in ipairs({ ... }) do
+    if type(tbl) == "table" then
+      merge_into(result, tbl)
+    end
+  end
+
+  return result
+end
+
 return M
