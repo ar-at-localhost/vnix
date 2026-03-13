@@ -9,20 +9,9 @@
     inherit pkgs nixvim system np;
   };
 
-  cwd = builtins.getEnv "CWD";
-
-  repo_path =
-    if cwd == ""
-    then (toString ../.)
-    else cwd;
-
-  plugin_dir =
-    if cwd == ""
-    then "./"
-    else cwd;
-
+  repo = builtins.getEnv "VNIX_PLUGIN_DIR";
   example__vnix__config_orig = builtins.readFile ./dev/example-vnix-specs.json;
-  example__vnix__config = builtins.replaceStrings ["_cwd_"] [plugin_dir] example__vnix__config_orig;
+  example__vnix__config = builtins.replaceStrings ["_cwd_"] [repo] example__vnix__config_orig;
   example_wezterm_cfg = builtins.readFile ./dev/example-wezterm-config.lua;
 
   specs_json = pkgs.writeTextFile {
@@ -53,7 +42,6 @@
   wezterm-types-version = "1.4.0-1";
 in {
   inherit vnix-nvim;
-  inherit repo_path;
 
   vnix =
     pkgs.stdenv.mkDerivation
@@ -73,8 +61,8 @@ in {
         --set XDG_CONFIG_HOME "/tmp/vnix-dev/config" \
         --set XDG_DATA_HOME   "/tmp/vnix-dev/data" \
         --set XDG_CACHE_HOME  "/tmp/vnix-dev/cache" \
-        --set VNIX_PLUGIN_DIR "${plugin_dir}" \
-        --prefix LUA_PATH ";" "${repo_path}/lua/?.lua;${repo_path}/lua/?/init.lua" \
+        --set VNIX_PLUGIN_DIR "${repo}" \
+        --prefix LUA_PATH ";" "${repo}/lua/?.lua;${repo}/lua/?/init.lua" \
         --run "
         rm -rf /tmp/vnix-dev
         mkdir -p /tmp/vnix-dev/config /tmp/vnix-dev/data /tmp/vnix-dev/cache
@@ -86,8 +74,8 @@ in {
 
         makeWrapper ${vnix-nvim}/bin/nvim \
         $out/bin/vnix-nvim \
-        --set VNIX_PLUGIN_DIR "${plugin_dir}" \
-        --prefix LUA_PATH ";" "${repo_path}/lua/?.lua;${repo_path}/lua/?/init.lua"
+        --set VNIX_PLUGIN_DIR "${repo}" \
+        --prefix LUA_PATH ";" "${repo}/lua/?.lua;${repo}/lua/?/init.lua"
 
         ln -s ${vnix-nvim}/bin/nixvim-print-init \
         $out/bin/vnix-print-nvim-init

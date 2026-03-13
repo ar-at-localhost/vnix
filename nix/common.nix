@@ -46,31 +46,31 @@ in {
 
       extraConfigLua = ''
         function _M.setup_orgmode(opts)
-        local Menu = require("org-modern.menu")
-        require('orgmode').setup({
-          org_agenda_files = opts.org_agenda_files,
-          org_default_notes_file = opts.org_default_notes_file,
+          local Menu = require("org-modern.menu")
+          require("orgmode").setup({
+            org_agenda_files = opts.org_agenda_files,
+            org_default_notes_file = opts.org_default_notes_file,
 
-          ui = {
-            menu = {
-              handler = function(data)
-            Menu:new():open(data)
-              end,
+            ui = {
+              menu = {
+                handler = function(data)
+                  Menu:new():open(data)
+                end,
+              },
             },
-          },
-        })
+          })
 
-        require("org-bullets").setup()
-        require("headlines").setup({
-          markdown = {
-            headline_highlights = false,
-          }
-        })
+          require("org-bullets").setup()
+          require("headlines").setup({
+            markdown = {
+              headline_highlights = false,
+            },
+          })
 
-        vim.lsp.enable('org')
+          vim.lsp.enable("org")
         end
 
-        require('nvim.setup')
+        require("nvim.setup")
       '';
 
       plugins = {
