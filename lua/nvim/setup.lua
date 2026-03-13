@@ -10,7 +10,6 @@ vim.api.nvim_create_user_command("Vnix", function(opts)
     local pr = require("plenary.reload")
     pr.reload_module("common")
     pr.reload_module("nvim")
-    vim.notify("Vnix reloaded")
   elseif arg == "setup" then
     local vnix = vim.fn.getenv("VNIX")
     local vnix_dir = vim.fn.getenv("VNIX_DIR")

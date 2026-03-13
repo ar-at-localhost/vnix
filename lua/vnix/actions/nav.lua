@@ -13,31 +13,37 @@ end
 ---Workspace navigation
 ---@param win Window
 ---@param pane Pane
----@param offset number
-local function switch_workspace(win, pane, offset)
+---@param offset_or_idx? integer Provide +1/-1 or exact index (except 1 - which will be taken as `offset`)
+local function switch_workspace(win, pane, offset_or_idx)
+  local fallback_offset = 0
   local fallback = function()
-    win:perform_action(wezterm.action.SwitchWorkspaceRelative(offset), pane)
+    win:perform_action(wezterm.action.SwitchWorkspaceRelative(fallback_offset), pane)
     wezterm.emit("vnix:state-update", win, "effective")
   end
 
-  local current = win:active_workspace()
-  local current_workspace, idx = state.find_workspace_by_name(current)
+  local target_idx = offset_or_idx
+  fallback_offset = 0
 
-  if not current_workspace or not idx then
-    fallback()
-  end
-
-  local total_workspaces = #vnix.runtime.workspaces
-  local target_idx = idx + offset
-  if target_idx < 1 then
-    target_idx = total_workspaces
-  elseif target_idx > total_workspaces then
+  if target_idx == 0 then
     target_idx = 1
+  elseif target_idx == 1 or target_idx == -1 then
+    fallback_offset = offset_or_idx or 1
+    local current = win:active_workspace()
+    local current_workspace, idx = state.find_workspace_by_name(current)
+
+    if not current_workspace or not idx then
+      fallback()
+      return
+    end
+
+    local total_workspaces = #vnix.runtime.workspaces
+    target_idx = ((idx - 1 + offset_or_idx) % total_workspaces) + 1
   end
 
   local target = vnix.runtime.workspaces[target_idx]
   if not target then
     fallback()
+    return
   end
 
   win:perform_action(wezterm.action.SwitchToWorkspace({ name = target.name }), pane)
@@ -128,9 +134,9 @@ wezterm.on("vnix:nav-workspace-prev", function(win, pane)
 end)
 
 wezterm.on("vnix:nav-workspace-first", function(win, pane)
-  navigate(win, pane, wezterm.action({ SwitchWorkspaceRelative = 0 }))
+  switch_workspace(win, pane, 0)
 end)
 
 wezterm.on("vnix:nav-workspace-last", function(win, pane)
-  navigate(win, pane, wezterm.action({ SwitchWorkspaceRelative = -1 }))
+  switch_workspace(win, pane, #vnix.runtime.workspaces)
 end)
