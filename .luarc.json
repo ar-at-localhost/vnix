@@ -20,6 +20,6 @@
     ]
   },
   "diagnostics": {
-    "globals": ["describe", "it"]
+    "globals": ["describe", "it", "_G"]
   }
 }

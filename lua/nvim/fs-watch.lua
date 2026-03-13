@@ -13,7 +13,7 @@ local function handle_runtime(filepath)
 end
 
 function M.setup_vnix()
-  if config.G.watchers["vnix"] then
+  if config.watchers["vnix"] then
     return
   end
 
@@ -59,7 +59,7 @@ function M.setup_vnix()
   })
 
   handle_runtime(string.format("%s/%s", config.vnix_dir, "runtime.json"))
-  config.G.watchers["vnix"] = handle
+  config.watchers["vnix"] = handle
 end
 
 function M.setup()

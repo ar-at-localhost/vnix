@@ -1,13 +1,11 @@
 local pad_half = "    "
 
 -- selene: allow
-_G.__vnix = _G.__vnix or {
-  watchers = {},
-}
+_G.__vnix = _G.__vnix or {}
 
 ---@type VNixNvimState
 local vnix = {
-  G = _G.__vnix,
+  watchers = {},
   vnix_dir = "",
   src_dir = "",
   flat_panes = {},
@@ -25,8 +23,10 @@ local vnix = {
   pickers = {},
 }
 
-if vnix.src_dir and vnix.src_dir ~= "" then
-  vnix.src_dir = vnix.src_dir .. "/lua"
+local src = os.getenv("VNIX_PLUGIN_DIR")
+if src and src ~= "" then
+  _G.__vnix = vnix
+  return _G.__vnix
 end
 
 return vnix

@@ -71,7 +71,7 @@
 ---@field vnix_dir string
 
 ---@class VNixNvimState
----@field G VNixNvimGlobalState
+---@field watchers table<'vnix' | 'dev', uv.uv_fs_event_t?>
 ---@field vnix_dir string vnix directory path
 ---@field src_dir? string vnix directory path
 ---@field _ns integer unknown
@@ -87,9 +87,6 @@
 ---@field rpc RPCDebug[]
 ---@field rpc_active UIMessageReqBase?
 ---@alias RPCDebug { req: UIMessageReqBase, resp: UIMessageRespBase }
-
----@class VNixNvimGlobalState
----@field watchers table<'vnix' | 'dev', uv.uv_fs_event_t?>
 
 ---@class PanesWithInfo
 ---@field index number
