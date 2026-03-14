@@ -1,6 +1,6 @@
 ---@generic UIMessageData
 
----@alias UIMessageType 'create' | 'debug' | 'inspect' | 'launch' | 'rename' | 'persist' | 'switch'
+---@alias UIMessageType 'create' | 'debug' | 'inspect' | 'launch' | 'rename' | 'persist' | 'switch' | 'status'
 
 ---@class UIMessageReqBase<UIMessageData>
 ---@field id number
@@ -102,3 +102,14 @@
 ---@class UIMessageLaunchReq :UIMessageReqBase
 ---@field type 'launch'
 ---@field data nil
+
+--------------------------------------------------------------------------------
+---@class UIMessageStatusResp: UIMessageRespBase
+---@field type 'status'
+---@field data UIMessageStatusRespData
+---@alias UIMessageStatusRespData OrgActiveClockData
+
+---@class OrgActiveClockData
+---@field title string
+---@field since number
+---@field formatted string

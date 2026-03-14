@@ -59,6 +59,10 @@ function M.restore(arg)
   mux.await_gui_window(win, function(gui_window)
     vnix._window_id = gui_window:window_id()
     gui_window:maximize()
+    local cfg = gui_window:effective_config()
+    if cfg then
+      vnix.palette = cfg.resolved_palette
+    end
 
     local workspaces = {}
     for _, w in ipairs(arg.workspaces) do

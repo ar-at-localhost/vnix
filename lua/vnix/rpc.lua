@@ -107,6 +107,13 @@ function M.parse(win, pane, data)
       return wezterm.emit("vnix:switch-to", parsed.data.id)
     end
   end
+
+  --- Status messages
+  if parsed.type == "status" then
+    ---@cast parsed UIMessageStatusResp
+    vnix.status = vnix.status or {}
+    vnix.status.task = parsed.data
+  end
 end
 
 return M

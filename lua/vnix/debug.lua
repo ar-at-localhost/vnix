@@ -17,7 +17,6 @@ function M._add_to_watch(dir)
       if not ok then
         if get_extension(v) == "lua" then
           wezterm.add_to_config_reload_watch_list(v)
-          print("Added to watch: " .. v)
         end
       end
     end
@@ -26,7 +25,6 @@ end
 
 function M.handle_reload()
   if vnix.debug and vnix.is_ready then
-    print("Dispatching reload")
     rpc.dispatch_cmd("reload")
   end
 end

@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   nixvim,
   system,
@@ -43,30 +44,10 @@ in {
 
       # TODO: Contribute to `plugins.orgmode` instead
       extraPlugins = [pkgs.vimPlugins.orgmode org-bullets org-modern headlines];
+      plugins.snacks.settings.dashboard.enable = lib.mkForce false;
 
       extraConfigLua = ''
         function _M.setup_orgmode(opts)
-          local Menu = require("org-modern.menu")
-          require("orgmode").setup({
-            org_agenda_files = opts.org_agenda_files,
-            org_default_notes_file = opts.org_default_notes_file,
-
-            ui = {
-              menu = {
-                handler = function(data)
-                  Menu:new():open(data)
-                end,
-              },
-            },
-          })
-
-          require("org-bullets").setup()
-          require("headlines").setup({
-            markdown = {
-              headline_highlights = false,
-            },
-          })
-
           vim.lsp.enable("org")
         end
 

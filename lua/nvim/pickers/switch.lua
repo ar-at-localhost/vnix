@@ -47,7 +47,9 @@ local common = {
 
       self:close()
       local next = Snacks.picker.workspace
-      config.pickers.switch = "workspace"
+      config.pickers.switch = {
+        source = "workspace",
+      }
       next()
     end,
     tabs = function(self)
@@ -57,7 +59,9 @@ local common = {
 
       self:close()
       local next = Snacks.picker.tab
-      config.pickers.switch = "tab"
+      config.pickers.switch = {
+        source = "tab",
+      }
       next()
     end,
     panes = function(self)
@@ -67,7 +71,7 @@ local common = {
 
       self:close()
       local next = Snacks.picker.pane
-      config.pickers.switch = "pane"
+      config.pickers.switch = { source = "pane" }
       next()
     end,
   },

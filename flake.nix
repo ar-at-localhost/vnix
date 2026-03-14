@@ -55,7 +55,10 @@
             stylua
             lua-language-server
             selene
-            (import ./nix/nixvim.nix {inherit system pkgs nixvim np wezterm-types;})
+            (import ./nix/nixvim.nix {
+              inherit system pkgs nixvim np wezterm-types;
+              inherit (pkgs) lib;
+            })
             vnixDevPkgs.vnix
           ];
 
@@ -67,6 +70,7 @@
             export WEZTERM_LUA_TYPES="${vnixDevPkgs.wezterm-types}/share/lua/5.4"
             export NVIM_SNACKS_LUA_TYPES="${pkgs.vimPlugins.snacks-nvim}/lua"
             export NVIM_ORGMODE_LUA_TYPES="${pkgs.vimPlugins.orgmode}/lua"
+            export NVIM_PLENARY_LIB="${pkgs.vimPlugins.plenary-nvim}/lua"
           '';
         };
       }
