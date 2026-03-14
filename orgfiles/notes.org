@@ -1,7 +1,7 @@
 #+title: Vnix
 #+author: Ahmad Raza <pro.se.ahmad.raza.1@gmail.com>
 
-* TODO: Improve basic workflows
+* TODO Improve basic workflows
   There are certain features lacking basic expectations, those should be considered to be available ASAP.
 ** DONE Create a workspace on the fly
 *** Keys
@@ -73,16 +73,19 @@
      This is quite awkward solution, but it aligns with VNix philosophy of declarative
      workspaces and separation of concern between run-time state and declarations.
 * TODO Introduce tags :feat:workspaces:filters:
-  The workspaces / tabs / panes should have tags associated to quickly filter by tags.
   DEADLINE: [2026-03-01 Sun]
+  The workspaces / tabs / panes should have tags associated to quickly filter by tags.
 
-* TODO Introduce quick filter in Snacks Pane picker :feat:panes:filters:
+* TODO Introduce quick filter in Snacks Pane picker :feat:panes:filter:
+  DEADLINE: [2026-03-01 Sun]
   Snacks pane picker should allow from quick search through Workspaces / Tabs / Panes.
   - ~ALT+w~ Reduce results to 1 per workspace
   - ~ALT+t~ Reduce results to tabs in active workspace, or ~w>~ where ~w~ is the target workspace.
-  DEADLINE: [2026-03-01 Sun]
 
 * TODO Supercharge Org Mode :feat:orgmode:
+  :LOGBOOK:
+  CLOCK: [2026-03-14 Sat 15:15]
+  :END:
   Mixing Neovim orgmode with Vnix can bring some good features, especially for *DEV* workspaces.
   This can allow user to select / track tasks on various workspaces.
   Non-dev workspaces can actually utilize user's global org files for tasking.
@@ -95,7 +98,7 @@
    - Introduce Org-mode keybindings
      - ~<L>oa~ Quick Agenda view for current week
      - ~<L>oA~ Agenda prompt
-** TODO Task Tracking :feat:orgmode:clock:
+** PROG Task Tracking :feat:orgmode:clock:
 
 *** TODO Show clock status
     Status bar should be display some status regarding clocking.

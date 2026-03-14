@@ -24,24 +24,6 @@ function M.process(data)
 
     if not tbl.deep_equal(dev_workspaces, config.dev_workspaces) then
       config.dev_workspaces = dev_workspaces
-      pcall(function()
-        local orgmode = require("orgmode")
-        orgmode.destroy()
-
-        local org_paths = vim.tbl_map(function(value)
-          ---@cast value { cwd: string; idx: number }
-          return value.cwd .. "/orgfiles/**/*.org"
-        end, dev_workspaces)
-
-        ---@type string[]
-        org_paths = vim.tbl_values(org_paths)
-        table.insert(org_paths, config.vnix_dir .. "/orgfiles/**/*.org")
-
-        orgmode.setup({
-          org_agenda_files = org_paths,
-          org_default_notes_file = config.vnix_dir .. "/notes.org",
-        })
-      end)
     end
   end
 end

@@ -1,18 +1,11 @@
 local resp = require("nvim.resp")
 local config = require("nvim.config")
 
----@class VnixVNimDebugHandle
----@field handle fun(data: UIMessageDebugReqReplyData)
----@field layout? snacks.layout
-
----@class VnixVNimDebug
+---@class VnixVNimDebugMod
 ---@field _debug_wezterm fun(req: UIMessageDebugReq)
 ---@field _debug_nvim fun()
 ---@field _show_rpc fun()
----@field handles VnixVNimDebugHandle[]
-local M = {
-  handles = {},
-} ---@type VnixVNimDebug
+local M = {} ---@type VnixVNimDebugMod
 
 function M.close()
   resp.switch()
@@ -157,7 +150,7 @@ function M._debug_wezterm(req)
 
   layout:show()
 
-  M.handles[req.id] = {
+  config.debug.handles[req.id] = {
     handle = function(data)
       if data and data.result then
         vim.print(data.result)
@@ -234,8 +227,8 @@ end
 
 ---@param req UIMessageDebugReq
 function M.handle(req)
-  if req.data and M.handles[req.data.id] then
-    local handle = M.handles[req.data.id]
+  if req.data and config.debug.handles[req.data.id] then
+    local handle = config.debug.handles[req.data.id]
 
     if handle then
       handle.handle(req.data)

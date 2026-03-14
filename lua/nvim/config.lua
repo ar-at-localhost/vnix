@@ -19,6 +19,14 @@ local function init()
     rpc = {},
     rpc_active = nil,
     pickers = {},
+    debug = {
+      handles = {},
+    },
+    highlights = {},
+    org = {
+      keywords = { "TODO", "PROG", "|", "DONE", "CLOSED" },
+      sorts = { "deadline", "priority" },
+    },
   }
 
   return vnix
@@ -27,6 +35,7 @@ end
 local src = os.getenv("VNIX_PLUGIN_DIR")
 if src and src ~= "" then
   _G.__vnix = _G.__vnix or init()
+  _G.__vnix.dev = true
   return _G.__vnix
 end
 

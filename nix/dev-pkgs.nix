@@ -5,8 +5,9 @@
   np,
   ...
 }: let
+  inherit (pkgs) lib;
   common = import ./common.nix {
-    inherit pkgs nixvim system np;
+    inherit lib pkgs nixvim system np;
   };
 
   repo = builtins.getEnv "VNIX_PLUGIN_DIR";

@@ -86,6 +86,10 @@
 ---@field pad string
 ---@field rpc RPCDebug[]
 ---@field rpc_active UIMessageReqBase?
+---@field dev boolean?
+---@field debug VnixVNimDebug
+---@field highlights table<string, string>
+---@field org VnixOrg
 ---@alias RPCDebug { req: UIMessageReqBase, resp: UIMessageRespBase }
 
 ---@class PanesWithInfo

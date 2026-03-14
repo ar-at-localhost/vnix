@@ -73,4 +73,10 @@ function M.iso_timestamp(epoch)
   return os.date("!%Y-%m-%dT%H:%M:%SZ", epoch or os.time()) --[[@as string]]
 end
 
+---Get now as Unix timestamp
+---@return integer
+function M.now_unix()
+  return os.time()
+end
+
 return M

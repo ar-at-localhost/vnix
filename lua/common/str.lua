@@ -93,6 +93,28 @@ function M.pad(str, target_len, char, ellipsis)
   return repeat_char(char, left) .. str .. repeat_char(char, right)
 end
 
+---Pad an array of string so that each item is uniformly padded
+---@param items string[]
+---@return table<string, string> paddd_items a dict width original string as key and padded string as value
+---@return integer max_len maximum length applied
+function M.pad_items(items)
+  local padded = {}
+  local max_len = 0
+
+  for _, s in ipairs(items) do
+    local len = s:len()
+    if len > max_len then
+      max_len = len
+    end
+  end
+
+  for _, s in ipairs(items) do
+    padded[s] = M.pad(s, max_len)
+  end
+
+  return padded, max_len
+end
+
 function M.trim(str)
   local trimmed = str:gsub("^%s*(.-)%s*$", "%1")
   return trimmed

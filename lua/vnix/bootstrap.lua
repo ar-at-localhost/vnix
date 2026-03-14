@@ -49,6 +49,7 @@ function M.setup(opts)
       ui_next_req = 1,
       is_ready = true,
       debug = opts.debug or false,
+      status = {},
     }
   end
 end
