@@ -21,6 +21,8 @@
 ---@field ui_next_req number
 ---@field debug? boolean
 ---@field _window_id? integer Temp save of GUI Window ID (Do not trust)
+---@field palette? Palette
+---@field status? VnixStatus
 --------------------------------------------------------------------------------
 ---@class VnixRuntime
 ---@field keybindings? VNixKeybindingInfo[]
@@ -28,3 +30,7 @@
 ---@field focus VnixFocus
 ---@field workspaces VnixWorkspaceState[]
 ---@field panes VnixPanesFlat
+
+--------------------------------------------------------------------------------
+---@class VnixStatus
+---@field task? OrgActiveClockData

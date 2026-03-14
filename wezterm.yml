@@ -1,3 +1,6 @@
 base: lua52
 lua_versions:
   - lua54
+globals:
+  utf8:
+    any: true
