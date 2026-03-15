@@ -34,3 +34,8 @@
 --------------------------------------------------------------------------------
 ---@class VnixStatus
 ---@field task? OrgActiveClockData
+
+---@class OrgActiveClockData
+---@field title string
+---@field since number
+---@field formatted string

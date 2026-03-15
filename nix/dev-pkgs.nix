@@ -56,6 +56,7 @@ in {
 
       installPhase = ''
         mkdir -p $out/bin
+        ln -sf ${pkgs.wezterm}/bin/wezterm $out/bin/vnix-wezterm
 
         makeWrapper ${pkgs.wezterm}/bin/wezterm \
         $out/bin/vnix \
