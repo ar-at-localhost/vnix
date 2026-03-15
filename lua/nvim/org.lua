@@ -2,6 +2,7 @@ local config = require("nvim.config")
 local time = require("common.time")
 local fs = require("common.fs")
 require("nvim.org.headline")
+local helpers = require("nvim.org.helpers")
 
 ---@class VnixOrgMode
 local M = {} ---@type VnixOrgMode
@@ -48,24 +49,16 @@ function M.setup()
       timer:start(0, 50 * 1000, function()
         vim.schedule(function()
           pcall(function()
-            local headline = orgmode.files:get_clocked_headline()
-            if headline then
-              local log_book = headline:get_logbook()
-              if log_book then
-                local active = log_book:get_active()
-                if active then
-                  config.status = config.status or {}
-                  config.status.task = {
-                    title = headline:get_title(),
-                    since = active.start_time.timestamp,
-                    formatted = time.format_hhmm(
-                      time.now_unix() - (active.start_time.timestamp or 0)
-                    ),
-                  }
+            local active, _, headline = helpers.get_active_clock()
+            if active and headline then
+              config.status = config.status or {}
+              config.status.task = {
+                title = headline:get_title(),
+                since = active.start_time.timestamp,
+                formatted = time.format_hhmm(time.now_unix() - (active.start_time.timestamp or 0)),
+              }
 
-                  fs.write_json(string.format("%s/status.json", config.vnix_dir), config.status)
-                end
-              end
+              fs.write_json(string.format("%s/status.json", config.vnix_dir), config.status)
             end
           end)
         end)
