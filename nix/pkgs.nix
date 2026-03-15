@@ -8,6 +8,7 @@
 }: let
   common = import ./common.nix {
     inherit system pkgs nixvim np;
+    inherit (pkgs) lib;
   };
 
   inherit (common) vnix-nvim;
