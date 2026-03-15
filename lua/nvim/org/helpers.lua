@@ -1,5 +1,4 @@
 local api = require("orgmode.api")
-require("nvim.org.headline")
 ---@class VnixOrgHeadline
 local M = {} ---@type VnixOrgHeadline
 

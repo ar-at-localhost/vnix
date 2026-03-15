@@ -61,6 +61,16 @@ function OrgApiHeadline:toggle_clock()
     return headline:is_clocked_in() and headline:clock_out() or headline:clock_in()
   end)
 end
+
+---@class OrgApiHeadline
+---@field cancel_active_clock fun(self: OrgApiHeadline)
+function OrgApiHeadline:cancel_active_clock()
+  ---@diagnostic disable-next-line: invisible
+  self:_do_action(function()
+    local headline = org.files:get_closest_headline()
+    return headline:is_clocked_in() and headline:cancel_active_clock()
+  end)
+end
 -------------------------------------------------------------------
 
 return OrgApiHeadline

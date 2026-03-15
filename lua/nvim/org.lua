@@ -1,6 +1,7 @@
 local config = require("nvim.config")
 local time = require("common.time")
 local fs = require("common.fs")
+require("nvim.org.headline")
 
 ---@class VnixOrgMode
 local M = {} ---@type VnixOrgMode
