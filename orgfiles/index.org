@@ -1,0 +1,19 @@
+#+title: Vnix
+#+author: Ahmad Raza <pro.se.ahmad.raza.1@gmail.com>
+
+* Introduction
+Vnix is a distribution of Wezterm for enhanced multiplexing and organizational experience.
+It utilizes Nvim as a UI back-end for enabling some good interaction features such as
+picking terminals by fuzzy search, creating new ones by using text forms via Nvim buffer
+etc. The wezterm itself is binding heavily with Vim like bindings for ergnomics.
+
+Vnix tries to blend Wezterm, Nvim and Nix to bring togather a declrative workspace
+management feature so that you can finally breeze in terminals.
+
+  :note:
+  If you're not experienced Nvim or Nix user either, then Vnix is probably not for you.
+  Vnix is for the users which live in terminal.
+  :end:
+
+** Features
+   An outline of features can be found [[./features.org][here]]

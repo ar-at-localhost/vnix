@@ -1,0 +1,57 @@
+#+title: Features
+#+author: Ahmad Raza <pro.se.ahmad.raza.1@gmail.com>
+
+* DONE Basic Features
+** Workspaces
+   - Create / Rename / Delete a workspace on the fly.
+   - Persist workspaces in specs files.
+   - Navigation keys
+      - ~<leader>K~ Previous workspace
+      - ~<leader>H~ Next workspace
+      - ~<leader>g~ First workspace
+      - ~<leader>G~ Last workspace
+   - Other keys
+      - ~<leader>"~ Kill
+   - Configurations
+     - Name
+     - Current working directory
+     - DEV
+       - Orgmode
+*** Tabs
+   - Create / Rename / Delete tabs on the fly.
+   - Persist tabs alongside workspaces in specs files.
+   - Navigation keys
+      - ~<leader>L~ Tab right 
+      - ~<leader>H~ Tab left
+      - ~<leader>0~ Tab first
+      - ~<leader>$~ Tab last
+   - Sort / Swap tabs with left / right
+      - ~<leader>)~ Swap with tab right 
+      - ~<leader>(~ Swap with tab left
+   - Other keys
+      - ~<leader>'~ Kill
+   - Configurations
+     - Name
+     - Current working directory
+**** Panes
+   - Create / Rename / Delete panes on the fly.
+   - Persist tabs alongside workspaces in specs files alongside workspaces / tabs.
+   - Tree splits (right / left) 
+   - Resize panes
+   - Navigation keys
+      - ~<leader>l~ Pane right 
+      - ~<leader>h~ Pane left
+      - ~<leader>k~ Pane upper
+      - ~<leader>j~ Tab lower
+   - Resize keys
+      - ~<leader><~ Increase left
+      - ~<leader>>~ Increase right
+      - ~<leader>^~ Increase up
+      - ~<leader>v~ Increase down
+      - ~<leader>;~ Kill
+   - Other keys
+      - ~<leader>;~ Kill
+   - Configurations
+   - Configurations
+     - Name
+     - Current working directory
