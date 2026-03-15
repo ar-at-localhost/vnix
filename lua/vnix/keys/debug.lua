@@ -2,7 +2,7 @@ local wezterm = require("wezterm")
 local act = wezterm.action
 
 ---@type VnixKeyGroup
-local common = {
+local debug = {
   keys = {
     reload = {
       key = "R",
@@ -28,4 +28,4 @@ local common = {
   tables = {},
 }
 
-return common
+return debug

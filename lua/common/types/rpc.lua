@@ -1,6 +1,6 @@
 ---@generic UIMessageData
 
----@alias UIMessageType 'create' | 'debug' | 'inspect' | 'launch' | 'rename' | 'persist' | 'switch' | 'status'
+---@alias UIMessageType 'create' | 'debug' | 'inspect' | 'launch' | 'rename' | 'persist' | 'switch' | 'status' | 'org'
 
 ---@class UIMessageReqBase<UIMessageData>
 ---@field id number
@@ -101,4 +101,9 @@
 
 ---@class UIMessageLaunchReq :UIMessageReqBase
 ---@field type 'launch'
+---@field data nil
+
+--------------------------------------------------------------------------------
+---@class UIMessageOrgReq :UIMessageReqBase
+---@field type 'org'
 ---@field data nil

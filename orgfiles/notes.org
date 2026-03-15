@@ -84,8 +84,9 @@
 
 * TODO Supercharge Org Mode :feat:orgmode:
   :LOGBOOK:
+  CLOCK: [2026-03-15 Sun 08:09]
   CLOCK: [2026-03-14 Sat 15:15]--[2026-03-14 Sat 18:00] => 15:46
-  CLOCK: [2026-03-15 Sun 07:00]
+  CLOCK: [2026-03-15 Sun 07:00]--[2026-03-15 Sun 07:35] => 0:35
   :END:
   Mixing Neovim orgmode with Vnix can bring some good features, especially for *DEV* workspaces.
   This can allow user to select / track tasks on various workspaces.

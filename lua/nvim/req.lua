@@ -37,6 +37,9 @@ function M.handle_request(req)
   elseif req.type == "switch" then
     ---@cast req UIMessageSwitchReq
     require("nvim.handlers.switch").handle(req)
+  elseif req.type == "org" then
+    ---@cast req UIMessageOrgReq
+    require("nvim.handlers.org").handle(req)
   end
 end
 
