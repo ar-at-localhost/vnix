@@ -1,6 +1,5 @@
 ---@module "vnix-common"
 local M = {
-  VNIX_NVIM_SOCK_PATH = "/tmp/vnix-nvim.sock",
   VNIX_USER_VAR_NAME = "vnixuservar",
 }
 

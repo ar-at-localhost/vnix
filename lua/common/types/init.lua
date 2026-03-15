@@ -30,6 +30,7 @@
 ---@field focus VnixFocus
 ---@field workspaces VnixWorkspaceState[]
 ---@field panes VnixPanesFlat
+---@field sock_path string
 
 --------------------------------------------------------------------------------
 ---@class VnixStatus

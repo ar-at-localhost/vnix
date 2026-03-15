@@ -22,8 +22,7 @@ end
 
 ---@param arg VnixSpecs
 function M.restore(arg)
-  local nvim_cmd =
-    string.format([[vnix-nvim --listen %s +'Vnix setup']], common.VNIX_NVIM_SOCK_PATH)
+  local nvim_cmd = string.format([[vnix-nvim --listen %s +'Vnix setup']], vnix.runtime.sock_path)
 
   -- FIXME: Accept the shell cmd overrides from user
   -- Detect if the shell is fish

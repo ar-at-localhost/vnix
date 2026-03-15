@@ -6,7 +6,8 @@ local M = {}
 ---@param opts VNixConfig
 function M.setup(opts)
   local G = wezterm.GLOBAL
-  local is_dev = opts.dev
+  local plugin_dir = os.getenv("VNIX_PLUGIN_DIR")
+  local is_dev = opts.dev or (plugin_dir and plugin_dir ~= "")
 
   if not G.vnix then
     local user_home = os.getenv("HOME") or "/"
@@ -32,6 +33,7 @@ function M.setup(opts)
     end
 
     G.vnix = {
+      sock_path = string.format("/tmp/vnix%s.sock", is_dev and "-dev" or ""),
       vnix_dir = vnix_home,
       shell = os.getenv("SHELL") or "/bin/bash",
       user_home = user_home,

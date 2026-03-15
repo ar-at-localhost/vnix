@@ -1,5 +1,4 @@
 ---@class VNixCommon
----@field VNIX_NVIM_SOCK_PATH string
 ---@field VNIX_USER_VAR_NAME string
 ---@field attempt_create_file function(path: string) Attempts to create a new file at the given path.
 ---@field write_json fun(path: string, tbl: table): string Write Lua table as JSON to file.

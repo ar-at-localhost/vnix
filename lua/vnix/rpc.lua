@@ -12,7 +12,7 @@ local M = {}
 function M.dispatch_cmd(cmd)
   local full_cmd = string.format(
     "vnix-nvim --server %s --remote-send \"<cmd>Vnix %s<cr>\"",
-    common.VNIX_NVIM_SOCK_PATH,
+    vnix.runtime.sock_path,
     cmd
   )
 
