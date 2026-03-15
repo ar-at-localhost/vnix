@@ -1,6 +1,6 @@
 local config = require("nvim.config")
-local resp = require("nvim.resp")
 local time = require("common.time")
+local fs = require("common.fs")
 
 ---@class VnixOrgMode
 local M = {} ---@type VnixOrgMode
@@ -39,36 +39,37 @@ function M.setup()
     },
   })
 
-  local timer = vim.uv.new_timer()
-  if timer then
-    timer:start(0, 15 * 1000, function()
-      vim.schedule(function()
-        pcall(function()
-          local headline = orgmode.files:get_clocked_headline()
-          if headline then
-            local log_book = headline:get_logbook()
-            if log_book then
-              local active = log_book:get_active()
-              if active then
-                resp.write({
-                  type = "status",
-                  id = 0,
-                  timestamp = "",
-                  data = {
+  config.timers = config.timers or {}
+  if not config.timers.status then
+    local timer = vim.uv.new_timer()
+    if timer then
+      config.timers.status = timer
+      timer:start(0, 50 * 1000, function()
+        vim.schedule(function()
+          pcall(function()
+            local headline = orgmode.files:get_clocked_headline()
+            if headline then
+              local log_book = headline:get_logbook()
+              if log_book then
+                local active = log_book:get_active()
+                if active then
+                  config.status = config.status or {}
+                  config.status.task = {
                     title = headline:get_title(),
                     since = active.start_time.timestamp,
                     formatted = time.format_hhmm(
                       time.now_unix() - (active.start_time.timestamp or 0)
                     ),
-                  },
-                  return_to = 0,
-                }, false)
+                  }
+
+                  fs.write_json(string.format("%s/status.json", config.vnix_dir), config.status)
+                end
               end
             end
-          end
+          end)
         end)
       end)
-    end)
+    end
   end
 end
 

@@ -72,6 +72,7 @@
 
 ---@class VNixNvimState
 ---@field watchers table<'vnix' | 'dev', uv.uv_fs_event_t?>
+---@field timers table<'status', uv.uv_fs_poll_t?>
 ---@field vnix_dir string vnix directory path
 ---@field src_dir? string vnix directory path
 ---@field _ns integer unknown
@@ -90,6 +91,7 @@
 ---@field debug VnixVNimDebug
 ---@field highlights table<string, string>
 ---@field org VnixOrg
+---@field status VnixStatus
 ---@alias RPCDebug { req: UIMessageReqBase, resp: UIMessageRespBase }
 
 ---@class PanesWithInfo

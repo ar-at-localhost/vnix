@@ -1,6 +1,7 @@
 local wezterm = require("wezterm")
 local common = require("common")
 local time = require("common.time")
+local fs = require("common.fs")
 local act = wezterm.action
 local vnix = wezterm.GLOBAL.vnix
 
@@ -17,6 +18,12 @@ function M.dispatch_cmd(cmd)
 
   local cmd_table = wezterm.shell_split(full_cmd)
   wezterm.background_child_process(cmd_table)
+end
+
+---UI Get status from nvim
+---@return VnixStatus?
+function M.get_status()
+  return fs.read_json(string.format("%s/status.json", vnix.vnix_dir))
 end
 
 ---UI Dispatch action

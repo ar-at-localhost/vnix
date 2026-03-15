@@ -3,7 +3,6 @@ local pad_half = "    "
 local function init()
   ---@type VNixNvimState
   local vnix = {
-    watchers = {},
     vnix_dir = "",
     src_dir = "",
     flat_panes = {},
@@ -27,6 +26,9 @@ local function init()
       keywords = { "TODO", "PROG", "|", "DONE", "CLOSED" },
       sorts = { "deadline", "priority" },
     },
+    status = {},
+    watchers = {},
+    timers = {},
   }
 
   return vnix
