@@ -1,7 +1,6 @@
 local config = require("nvim.config")
 local orgmode = require("orgmode")
 local str = require("common.str")
-local org = require("nvim.org")
 local helpers = require("nvim.org.helpers")
 
 ---@class snacks.picker
@@ -96,6 +95,11 @@ local keys = {
     "toggle_clock",
     mode = { "n", "v" },
     desc = "Toggle clock",
+  },
+  ["<leader>x"] = {
+    "cancel_active_clock",
+    mode = { "n", "v" },
+    desc = "Cancel active clock",
   },
 }
 
@@ -311,7 +315,14 @@ local picker = {
 
       if headline_api then
         headline_api:toggle_clock()
-        --- TODO: Refresh picker (especially preview)
+      end
+    end, "mutation"),
+
+    cancel_active_clock = make_action(function(item)
+      local headline_api = helpers.resolve_headline_api(item.node)
+
+      if headline_api then
+        headline_api:cancel_active_clock()
       end
     end, "mutation"),
   },
