@@ -90,7 +90,7 @@ wezterm.on("vnix:update-status", function(win, pane)
           })
         end
         table.insert(segments, {
-          text = "  " .. workspace_name .. " ",
+          text = "  " .. workspace_name .. " ",
           fg = colors.background,
           bg = colors.brights[7],
         })
@@ -115,7 +115,7 @@ wezterm.on("vnix:update-status", function(win, pane)
           if next_seg then
             table.insert(left_status, { Background = { Color = next_seg.bg } })
             table.insert(left_status, { Foreground = { Color = seg.bg } })
-            table.insert(left_status, { Text = sep })
+            table.insert(left_status, { Text = "" })
           else
             table.insert(left_status, { Background = { Color = colors.tab_bar.background } })
             table.insert(left_status, { Foreground = { Color = seg.bg } })
