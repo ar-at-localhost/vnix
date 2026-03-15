@@ -1,7 +1,7 @@
 #+title: Features
 #+author: Ahmad Raza <pro.se.ahmad.raza.1@gmail.com>
 
-* DONE Basic Features
+* Basic Features
 ** Workspaces
    - Create / Rename / Delete a workspace on the fly.
    - Persist workspaces in specs files.
@@ -17,6 +17,16 @@
      - Current working directory
      - DEV
        - Orgmode
+***** Presets
+     Presets are templates which you can use for spinning workspaces
+     with predefine layouts.
+
+     - ~blank~ A workspace with single tab / single pane.
+     - ~DEV~ A workspace that has several tabs and each with one or more panes
+       for effectively managing development workspaces (repositories.)
+       - Editor: A tab that runs your favorite editor (mine/default ~nvim~).
+       - Term: A single pane terminal for quick tasks.
+       - V Split / H Split / Grid: 3 tabs with several panes.
 *** Tabs
    - Create / Rename / Delete tabs on the fly.
    - Persist tabs alongside workspaces in specs files.
@@ -33,6 +43,13 @@
    - Configurations
      - Name
      - Current working directory
+***** Presets
+     Presets are templates which you can use for spinning tabs 
+     with predefine layouts.
+
+     - V Split: A 2 pane tab with vertical split between (|).
+     - H Split: A 2 pane tab with horizontal split between (-).
+     - Grid: A 4 pane tab like a grid (-|-).
 **** Panes
    - Create / Rename / Delete panes on the fly.
    - Persist tabs alongside workspaces in specs files alongside workspaces / tabs.
@@ -55,3 +72,11 @@
    - Configurations
      - Name
      - Current working directory
+
+* Orgmode
+  Vnix has first class support for orgmode (via [[https://github.com/nvim-orgmode/orgmode][Orgmode Nvim]]).
+  It enables you manage your tasks and notes very effectively.
+
+** Orgfile Sources
+   - Vnix directory
+   - Dev workspaces
