@@ -1,21 +1,24 @@
 local config = require("nvim.config")
 local orgmode = require("orgmode")
+local api = require("orgmode.api")
 local str = require("common.str")
 local helpers = require("nvim.org.helpers")
 
 ---@class snacks.picker
----@field tasks snacks.Picker
+---@field orgtasks snacks.Picker
 
 ---@class VnixOrgTasksActivePicker
----@field source 'tasks'
+---@field source 'orgtasks'
 ---@field state VnixOrgTasksPickerState
 
 ---@class VnixOrgTasksPickerState
 ---@field workspace 'all' | string
+---@field file string
 ---@field level integer
 ---@field keywords table<string, string>
 ---@field node? OrgHeadline
 ---@field sort? 'deadline' | 'priority'
+---@field action? fun(picker: snacks.Picker, item: VnixOrgTasksPickerItem): boolean? Return `true` to prevent close of picker
 
 ---@class VnixOrgTasksPickerItem
 ---@field node OrgHeadline
@@ -31,17 +34,18 @@ local helpers = require("nvim.org.helpers")
 
 local known_sorts = config.org.sorts
 
-config.pickers.tasks = {
-  source = "tasks",
-  state = {
-    keywords = str.pad_items(config.org.keywords),
-    workspace = "all",
-    level = 1,
-    sort = "deadline",
-  },
-}
+config.pickers.orgtasks = config.pickers.orgtasks
+  or {
+    source = "orgtasks",
+    state = {
+      keywords = str.pad_items(config.org.keywords),
+      workspace = "all",
+      level = 1,
+      sort = "deadline",
+    },
+  }
 
-local state = config.pickers.tasks.state
+local state = config.pickers.orgtasks.state
 
 ---@type table<string, snacks.win.Keys>
 local keys = {
@@ -91,6 +95,16 @@ local keys = {
     mode = { "n", "v" },
     desc = "Status: CLOSED",
   },
+  ["<leader>r"] = {
+    "refile",
+    mode = { "n", "v" },
+    desc = "Refile",
+  },
+  ["<leader>R"] = {
+    "refile_to_headline",
+    mode = { "n", "v" },
+    desc = "Refile to headline",
+  },
   ["<leader>C"] = {
     "toggle_clock",
     mode = { "n", "v" },
@@ -104,7 +118,7 @@ local keys = {
 }
 
 ---@param cb fun(item: VnixOrgTasksPickerItem)
----@param kind? 'filter' | 'mutation'
+---@param kind? 'filter' | 'mutation' | 'done'
 local function make_action(cb, kind)
   ---@param picker snacks.Picker
   ---@param item VnixOrgTasksPickerItem
@@ -115,6 +129,8 @@ local function make_action(cb, kind)
       return picker:find()
     elseif kind == "mutation" then
       return picker:refresh()
+    else
+      picker:close()
     end
   end
 end
@@ -149,7 +165,7 @@ local picker = {
   format = function(item)
     return {
       {
-        config.pickers.tasks.state.keywords[item.status and item.status or ""],
+        config.pickers.orgtasks.state.keywords[item.status and item.status or ""],
         string.format("@org.keyword%s%s", item.statusl and "." or "", item.statusl or ""),
       },
       { " " },
@@ -203,7 +219,12 @@ local picker = {
   ---@param item VnixOrgTasksPickerItem
   transform = function(item)
     local parent = item.node:get_parent_headline()
-    return (state.node and state.node == parent or (item.level == state.level))
+
+    return (
+      (item.level == state.level)
+      and (not state.node or parent and state.node.file == parent.file and state.node.headline == parent.headline)
+      and (not state.file or item.file == state.file)
+    )
   end,
 
   ---@param a VnixOrgTasksPickerItem
@@ -240,10 +261,11 @@ local picker = {
     end, "filter"),
 
     depth_out = make_action(function(item)
-      state.node = item.node:get_parent_headline()
+      state.node = state.node:get_parent_headline()
+      state.level = state.level - 1
 
-      if state.level >= 2 then
-        state.level = state.level - 1
+      if state.level < 1 then
+        state.level = 1
       end
     end, "filter"),
 
@@ -325,7 +347,87 @@ local picker = {
         headline_api:cancel_active_clock()
       end
     end, "mutation"),
+
+    refile = make_action(function(item)
+      ---@type VnixOrgFilesPickerState
+      local s = config.pickers.orgfiles.state or {}
+      s.workspace = state.workspace
+      s.action = function(picker, file_item)
+        local headline_api = helpers.resolve_headline_api(item.node)
+        local file_api = helpers.resolve_file_api(file_item.file)
+
+        if headline_api and file_api then
+          api
+            .refile({
+              source = headline_api,
+              destination = file_api,
+            })
+            :next(function()
+              picker:close()
+            end)
+        end
+
+        return false
+      end
+
+      config.pickers.orgfiles.state = s
+      Snacks.picker(config.pickers.orgfiles.source)
+    end, "done"),
+
+    ---@param item VnixOrgTasksPickerItem
+    refile_to_headline = make_action(function(item)
+      local s = config.pickers.orgfiles.state
+      s.workspace = state.workspace
+      s.action = function(_, file_item)
+        local ts = config.pickers.orgtasks.state
+        ts.workspace = s.workspace
+        ts.file = file_item.file
+        ts.level = 1
+        ts.node = nil
+        ts.action = function(picker, dest_item)
+          local source_headline_api = helpers.resolve_headline_api(item.node)
+          local des_headline_api = helpers.resolve_headline_api(dest_item.node)
+
+          if source_headline_api and des_headline_api then
+            api
+              .refile({
+                source = source_headline_api,
+                destination = des_headline_api,
+              })
+              :next(function()
+                pcall(function()
+                  picker:close()
+                end)
+              end)
+          end
+
+          return true
+        end
+
+        config.pickers.orgtasks.state = ts
+        Snacks.picker(config.pickers.orgtasks.source)
+      end
+
+      config.pickers.orgfiles.state = s
+      Snacks.picker(config.pickers.orgfiles.source)
+    end, "done"),
   },
+
+  ---@param picker snacks.Picker
+  ---@param item VnixOrgTasksPickerItem
+  confirm = function(picker, item)
+    if not state.action then
+      ---@diagnostic disable-next-line: param-type-mismatch
+      return picker:action("edit")
+    end
+
+    local res = state.action(picker, item)
+    if not res then
+      pcall(function()
+        picker:close()
+      end)
+    end
+  end,
 }
 
 ---@type snacks.picker.Config

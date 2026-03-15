@@ -7,21 +7,31 @@ local function notify(msg)
   Snacks.notify(msg or "Failed to acquire task!", { level = "error", title = "Vnix Org" })
 end
 
----@param node OrgHeadline
+---Resolve API File by Headline or filename
+---@param filename_or_headline OrgHeadline | string
 ---@param check_node? fun(node: OrgHeadline): string?
 ---@param check_file? fun(file: OrgApiFile): string?
 ---@return OrgApiFile? file
-function M.resolve_file_api(node, check_node, check_file)
-  if not node or not node.file then
-    return notify()
+function M.resolve_file_api(filename_or_headline, check_node, check_file)
+  local filename = ""
+  local err
+
+  if type(filename_or_headline) == "string" then
+    filename = filename_or_headline
+  else
+    if not filename_or_headline or not filename_or_headline.file then
+      return notify()
+    end
+
+    err = check_node and check_node(filename_or_headline)
+    if err then
+      return notify(err)
+    end
+
+    filename = filename_or_headline.file.filename
   end
 
-  local err = check_node and check_node(node)
-  if err then
-    return notify(err)
-  end
-
-  local file = api.load(node.file.filename)
+  local file = api.load(filename)
   if not file or not file.filename then
     return notify()
   end
@@ -39,6 +49,7 @@ end
 ---@param check_file? fun(file: OrgApiFile): string?
 ---@param check_headline? fun(headline: OrgApiHeadline): string?
 ---@return OrgApiHeadline? headline
+---@return OrgApiFile? file
 function M.resolve_headline_api(node, check_node, check_file, check_headline)
   local file = M.resolve_file_api(node, check_node, check_file)
   if not file then
@@ -57,7 +68,7 @@ function M.resolve_headline_api(node, check_node, check_file, check_headline)
     return notify(err)
   end
 
-  return headline
+  return headline, file
 end
 
 ---Get active clock
