@@ -1,3 +1,4 @@
+local orgmode = require("orgmode")
 local api = require("orgmode.api")
 ---@class VnixOrgHeadline
 local M = {} ---@type VnixOrgHeadline
@@ -57,6 +58,20 @@ function M.resolve_headline_api(node, check_node, check_file, check_headline)
   end
 
   return headline
+end
+
+---Get active clock
+---@return table? clock_info
+---@return OrgLogbook? log_book
+---@return OrgHeadline? headline
+function M.get_active_clock()
+  local headline = orgmode.files:get_clocked_headline()
+  if headline then
+    local log_book = headline:get_logbook()
+    if log_book then
+      return log_book:get_active(), log_book, headline
+    end
+  end
 end
 
 ---@param priority string
