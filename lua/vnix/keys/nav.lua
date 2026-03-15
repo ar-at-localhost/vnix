@@ -1,4 +1,5 @@
 local wezterm = require("wezterm")
+local tbl = require("common.tbl")
 local specials = require("vnix.keys.specials")
 local act = wezterm.action
 
@@ -117,20 +118,20 @@ local nav = {
 }
 
 local free_navigation = {
-  specials.keys.reset_key_table,
-  {
+  escape_1 = specials.keys.pop_key_table,
+  nav_done = {
     key = "Enter",
     action = specials.keys.pop_key_table.action,
     description = specials.keys.pop_key_table.description,
   },
 }
 
-for _, key_info in ipairs(nav.keys) do
+for key, key_info in pairs(nav.keys) do
   if key_info.group == "vnix_navigation" then
-    table.insert(free_navigation, {
+    free_navigation[key] = {
       key = key_info.key,
       action = key_info.action,
-    })
+    }
   end
 end
 
