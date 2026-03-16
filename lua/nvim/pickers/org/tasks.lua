@@ -1,24 +1,38 @@
 local config = require("nvim.config")
 local orgmode = require("orgmode")
+local orgmode_config = require("orgmode.config")
 local api = require("orgmode.api")
-local str = require("common.str")
 local helpers = require("nvim.org.helpers")
 
 ---@class snacks.picker
----@field orgtasks snacks.Picker
+---@field orgtasks SnacksOrgTasksPicker
 
----@class VnixOrgTasksActivePicker
----@field source 'orgtasks'
----@field state VnixOrgTasksPickerState
+---@class SnacksOrgTasksPicker: snacks.Picker
+---@field opts SnacksOrgTasksPickerConfig
 
----@class VnixOrgTasksPickerState
----@field workspace 'all' | string
----@field file string
+---@class SnacksOrgTasksPickerConfig: snacks.picker.Config
+---@field dirs? string[] directories to search
+---@field sort SnacksOrgTasksPickerSort?
 ---@field level integer
----@field keywords table<string, string>
+---@field file string?
+---@field keywords table<string, string>?
 ---@field node? OrgHeadline
----@field sort? 'deadline' | 'priority'
----@field action? fun(picker: snacks.Picker, item: VnixOrgTasksPickerItem): boolean? Return `true` to prevent close of picker
+
+---@class SnacksOrgTasksPickerFilter
+---@field filter fun(item: VnixOrgTasksPickerItem, filter: SnacksOrgTasksPickerFilterOpts):boolean?
+
+---@class SnacksOrgTasksPickerSort
+---@field fields SnacksOrgTasksPickerSortFields
+
+---@class SnacksOrgTasksPickerSortFields
+---@field priority snacks.picker.sort.Field
+---@field deadline snacks.picker.sort.Field
+
+---@class SnacksOrgTasksPickerFilterOpts
+---@field level integer
+---@field file string?
+---@field keywords table<string, string>?
+---@field node? OrgHeadline
 
 ---@class VnixOrgTasksPickerItem
 ---@field node OrgHeadline
@@ -33,19 +47,6 @@ local helpers = require("nvim.org.helpers")
 ---@field preview snacks.picker.preview
 
 local known_sorts = config.org.sorts
-
-config.pickers.orgtasks = config.pickers.orgtasks
-  or {
-    source = "orgtasks",
-    state = {
-      keywords = str.pad_items(config.org.keywords),
-      workspace = "all",
-      level = 1,
-      sort = "deadline",
-    },
-  }
-
-local state = config.pickers.orgtasks.state
 
 ---@type table<string, snacks.win.Keys>
 local keys = {
@@ -117,13 +118,13 @@ local keys = {
   },
 }
 
----@param cb fun(item: VnixOrgTasksPickerItem)
+---@param cb fun(item: VnixOrgTasksPickerItem, picker: SnacksOrgTasksPicker)
 ---@param kind? 'filter' | 'mutation' | 'done'
 local function make_action(cb, kind)
-  ---@param picker snacks.Picker
+  ---@param picker SnacksOrgTasksPicker
   ---@param item VnixOrgTasksPickerItem
   return function(picker, item)
-    cb(item)
+    cb(item, picker)
 
     if kind == "filter" then
       return picker:find()
@@ -155,17 +156,19 @@ local function make_status_action(status)
   end, "mutation")
 end
 
----@type snacks.picker.Config
+---@type SnacksOrgTasksPickerConfig
 local picker = {
+  level = 1,
   auto_confirm = false,
   auto_close = false,
   preview = "preview",
 
   ---@param item VnixOrgTasksPickerItem
-  format = function(item)
+  ---@param picker SnacksOrgTasksPicker
+  format = function(item, picker)
     return {
       {
-        config.pickers.orgtasks.state.keywords[item.status and item.status or ""],
+        picker.opts.keywords[item.status and item.status or ""],
         string.format("@org.keyword%s%s", item.statusl and "." or "", item.statusl or ""),
       },
       { " " },
@@ -175,8 +178,9 @@ local picker = {
     }
   end,
 
+  ---@param opts SnacksOrgTasksPickerConfig
   ---@return VnixOrgTasksPickerItem[]
-  finder = function()
+  finder = function(opts)
     orgmode:reload()
     local files = orgmode.files
     ---@type VnixOrgTasksPickerItem[]
@@ -213,30 +217,31 @@ local picker = {
       end
     end
 
+    if opts.dirs then
+      for _, dir in pairs(opts.dirs) do
+        items = vim.tbl_filter(function(item)
+          return vim.startswith(item.file, vim.fs.normalize(dir))
+        end, items)
+      end
+    end
+
     return items
   end,
 
   ---@param item VnixOrgTasksPickerItem
-  transform = function(item)
+  ---@param ctx snacks.picker.finder.ctx
+  transform = function(item, ctx)
+    local opts = ctx.picker.opts --[[@cast opts SnacksOrgTasksPickerConfig]]
     local parent = item.node:get_parent_headline()
+    local o = opts or {
+      level = 1,
+    }
 
     return (
-      (item.level == state.level)
-      and (not state.node or parent and state.node.file == parent.file and state.node.headline == parent.headline)
-      and (not state.file or item.file == state.file)
+      (item.level == o.level)
+      and (not o.node or parent and o.node.file == parent.file and o.node.headline == parent.headline)
+      and (not o.file or item.file == o.file)
     )
-  end,
-
-  ---@param a VnixOrgTasksPickerItem
-  ---@param b VnixOrgTasksPickerItem
-  sort = function(a, b)
-    if state.sort == "priority" then
-      return a.priority > b.priority
-    elseif state.sort == "deadline" then
-      return a.deadline_unix < b.deadline_unix
-    end
-
-    return true
   end,
 
   win = {
@@ -249,32 +254,37 @@ local picker = {
   },
 
   actions = {
-    depth_in = make_action(function(item)
+    depth_in = make_action(function(item, picker)
+      local opts = picker.opts
+
       local childs = item.node:get_child_headlines()
       if #childs <= 0 then
         vim.notify("Task has no sub-tasks!", "warn")
         return
       end
 
-      state.node = item.node
-      state.level = state.level + 1
+      opts.node = item.node
+      opts.level = opts.level + 1
     end, "filter"),
 
-    depth_out = make_action(function(item)
-      state.node = state.node:get_parent_headline()
-      state.level = state.level - 1
+    depth_out = make_action(function(_, picker)
+      local opts = picker.opts
+      opts.node = opts.node and opts.node:get_parent_headline()
+      opts.level = opts.level - 1
 
-      if state.level < 1 then
-        state.level = 1
+      if opts.level < 1 then
+        opts.level = 1
       end
     end, "filter"),
 
-    depth_reset = make_action(function()
-      state.node = nil
-      state.level = 1
+    depth_reset = make_action(function(_, picker)
+      local opts = picker.opts
+      opts.node = nil
+      opts.level = 1
     end, "filter"),
 
-    cycle_sort = make_action(function()
+    cycle_sort = make_action(function(_, picker)
+      local state = picker.opts
       local idx = 1
 
       for i, v in ipairs(known_sorts) do
@@ -285,7 +295,16 @@ local picker = {
       end
 
       idx = (idx % #known_sorts) + 1
-      state.sort = known_sorts[idx]
+      state.sort = {
+        fields = {
+          priority = {
+            name = "priority",
+          },
+          deadline = {
+            name = "priority",
+          },
+        },
+      }
       -- FIXME: It is not a filter
     end, "filter"),
 
@@ -348,89 +367,74 @@ local picker = {
       end
     end, "mutation"),
 
-    refile = make_action(function(item)
-      ---@type VnixOrgFilesPickerState
-      local s = config.pickers.orgfiles.state or {}
-      s.workspace = state.workspace
-      s.action = function(picker, file_item)
-        local headline_api = helpers.resolve_headline_api(item.node)
-        local file_api = helpers.resolve_file_api(file_item.file)
+    refile = make_action(function(item, this_picker)
+      local opts = this_picker.opts
 
-        if headline_api and file_api then
-          api
-            .refile({
-              source = headline_api,
-              destination = file_api,
-            })
-            :next(function()
-              picker:close()
-            end)
-        end
+      Snacks.picker.orgfiles({
+        dirs = opts.dirs,
+        confirm = function(picker, file_item)
+          local headline_api = helpers.resolve_headline_api(item.node)
+          local file_api = helpers.resolve_file_api(file_item.file)
 
-        return false
-      end
-
-      config.pickers.orgfiles.state = s
-      Snacks.picker(config.pickers.orgfiles.source)
+          if headline_api and file_api then
+            api
+              .refile({
+                source = headline_api,
+                destination = file_api,
+              })
+              :next(function()
+                picker:close()
+              end)
+          end
+        end,
+      })
     end, "done"),
 
     ---@param item VnixOrgTasksPickerItem
-    refile_to_headline = make_action(function(item)
-      local s = config.pickers.orgfiles.state
-      s.workspace = state.workspace
-      s.action = function(_, file_item)
-        local ts = config.pickers.orgtasks.state
-        ts.workspace = s.workspace
-        ts.file = file_item.file
-        ts.level = 1
-        ts.node = nil
-        ts.action = function(picker, dest_item)
-          local source_headline_api = helpers.resolve_headline_api(item.node)
-          local des_headline_api = helpers.resolve_headline_api(dest_item.node)
+    refile_to_headline = make_action(function(item, this_picker)
+      local opts = this_picker.opts
 
-          if source_headline_api and des_headline_api then
-            api
-              .refile({
-                source = source_headline_api,
-                destination = des_headline_api,
-              })
-              :next(function()
-                pcall(function()
-                  picker:close()
-                end)
-              end)
-          end
+      Snacks.picker.orgfiles({
+        confirm = function(_, file_item)
+          Snacks.picker.orgfiles({
+            dirs = opts.dirs,
+            file = file_item.file,
+            confirm = function(picker, dest_item)
+              local source_headline_api = helpers.resolve_headline_api(item.node)
+              local des_headline_api = helpers.resolve_headline_api(dest_item.node)
 
-          return true
-        end
+              if source_headline_api and des_headline_api then
+                api
+                  .refile({
+                    source = source_headline_api,
+                    destination = des_headline_api,
+                  })
+                  :next(function()
+                    pcall(function()
+                      picker:close()
+                    end)
+                  end)
+              end
 
-        config.pickers.orgtasks.state = ts
-        Snacks.picker(config.pickers.orgtasks.source)
-      end
-
-      config.pickers.orgfiles.state = s
-      Snacks.picker(config.pickers.orgfiles.source)
+              return true
+            end,
+          })
+        end,
+      })
     end, "done"),
   },
-
-  ---@param picker snacks.Picker
-  ---@param item VnixOrgTasksPickerItem
-  confirm = function(picker, item)
-    if not state.action then
-      ---@diagnostic disable-next-line: param-type-mismatch
-      return picker:action("edit")
-    end
-
-    local res = state.action(picker, item)
-    if not res then
-      pcall(function()
-        picker:close()
-      end)
-    end
-  end,
 }
 
 ---@type snacks.picker.Config
-local M = vim.tbl_extend("force", {}, picker)
+local M = vim.tbl_extend("force", {
+  keywords = vim.tbl_map(
+    ---@param t OrgTodoKeyword
+    function(t)
+      return t.keyword
+    end,
+
+    orgmode_config.todo_keywords and orgmode_config.todo_keywords:all() or {}
+  ),
+}, picker)
 
 return M

@@ -43,4 +43,7 @@ function M.workspaces_to_specs(workspaces)
   )
 end
 
+---@param path string
+function M.get_orgfiles_root(path) end
+
 return M
