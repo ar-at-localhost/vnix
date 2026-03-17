@@ -1,4 +1,6 @@
 local wezterm = require("wezterm")
+local common = require("common")
+local t = require("common.time")
 local vnix = wezterm.GLOBAL.vnix
 
 ---@class VnixStateMod
@@ -348,6 +350,83 @@ function M.find_pane_by_id(id, check)
       end
     end
   end
+end
+
+---Find a proc
+---@param id string
+---@param workspace VnixWorkspaceState?
+---@return VnixProcRuntime? proc
+---@return integer? idx
+function M.find_proc(id, workspace)
+  local procs = vnix.runtime.procs
+  if workspace then
+    procs = workspace.procs
+  end
+
+  for i, v in ipairs(procs) do
+    if v.id == id then
+      return v, i
+    end
+  end
+end
+
+---Find a proc by tab_id
+---@param id integer
+---@return VnixProcRuntime? proc
+---@return integer? idx
+---@return VnixProcRuntime[]? source
+---@return VnixWorkspaceState? workspace
+function M.find_proc_by_tab_id(id)
+  for i, v in ipairs(vnix.runtime.procs) do
+    if v.tab_id == id then
+      return v, i, vnix.runtime.procs, nil
+    end
+  end
+
+  for _, w in vnix.runtime.workspaces do
+    for i, v in ipairs(w.procs) do
+      if v.tab_id == id then
+        return v, i, w.procs, w
+      end
+    end
+  end
+end
+
+---Update a proc info
+---@param proc VnixProcRuntime
+---@param tab MuxTab?
+---@param workspace VnixWorkspaceState?
+---@param save? boolean
+function M.update_proc(proc, tab, workspace, save)
+  if not workspace and proc.workspace ~= common.vnix_token then
+    error("Invalid workspace!")
+  end
+
+  local proc_found, idx = M.find_proc(proc.id, workspace)
+  if not proc_found or not idx then
+    error(string.format("Proc by id %s not found!", proc.id or ""))
+  end
+
+  if tab then
+    local pane = tab:panes()[1]
+    proc_found.scrollback = pane:get_lines_as_escapes(30)
+    proc_found.status = "running"
+  else
+    proc_found.status = "stopped"
+  end
+
+  proc.last_updated = t.now_unix()
+
+  if save then
+    M.save()
+  end
+end
+
+function M.save()
+  pcall(function()
+    local fs = require("common.fs")
+    fs.write_json(vnix.vnix_dir .. "/runtime.json", vnix.runtime)
+  end)
 end
 
 return M

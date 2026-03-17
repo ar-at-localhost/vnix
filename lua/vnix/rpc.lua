@@ -1,5 +1,4 @@
 local wezterm = require("wezterm")
-local common = require("common")
 local time = require("common.time")
 local fs = require("common.fs")
 local act = wezterm.action
@@ -51,13 +50,17 @@ function M.dispatch(win, pane, args)
     wezterm.emit("vnix:ui-req", action_data)
   end
 
-  -- Switch to ___vnix___ workspace for user interaction
+  vnix.ui_req = args
+
+  -- Switch to vnix workspace for user interaction
   win:perform_action(
     act.SwitchToWorkspace({
-      name = "___vnix___",
+      name = vnix.nvim.pane.workspace,
     }),
     pane
   )
+
+  win:perform_action(act.ActivateTab(0), pane)
 end
 
 --- Parse the incoming message from Nvim RPC
@@ -115,11 +118,16 @@ function M.parse(win, pane, data)
     end
   end
 
-  --- Status messages
-  if parsed.type == "status" then
-    ---@cast parsed UIMessageStatusResp
-    vnix.status = vnix.status or {}
-    vnix.status.task = parsed.data
+  --- Procs messages
+  if parsed.type == "procs" then
+    ---@cast parsed UIMessageProcsResp
+    if not parsed.data or not parsed.data.action or parsed.data.action == "close" then
+      return wezterm.emit("vnix:switch-to")
+    elseif parsed.data and parsed.data.action == "run" then
+      wezterm.emit("vnix:proc-run", win, pane, parsed.data.subject)
+    elseif parsed.data and parsed.data.action == "stop" then
+      wezterm.emit("vnix:proc-stop", win, pane, parsed.data.subject)
+    end
   end
 end
 

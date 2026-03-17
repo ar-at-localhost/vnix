@@ -30,6 +30,9 @@ local colors = load_colors()
 
 wezterm.on("update-status", function(win, pane)
   wezterm.emit("vnix:update-status", win, pane)
+  if vnix.ui_req and vnix.ui_req.type == "procs" then
+    wezterm.emit("vnix:procs-refresh", win, pane)
+  end
 end)
 
 wezterm.on("vnix:update-status", function(win, pane)

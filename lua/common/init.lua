@@ -1,6 +1,6 @@
----@module "vnix-common"
 local M = {
   VNIX_USER_VAR_NAME = "vnixuservar",
+  vnix_token = "___vnix___",
 }
 
 function M.obj_to_tbl(obj)

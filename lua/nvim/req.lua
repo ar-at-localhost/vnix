@@ -40,6 +40,9 @@ function M.handle_request(req)
   elseif req.type == "org" then
     ---@cast req UIMessageOrgReq
     require("nvim.handlers.org").handle(req)
+  elseif req.type == "procs" then
+    ---@cast req UIMessageProcsReq
+    require("nvim.handlers.procs").handle(req)
   end
 end
 

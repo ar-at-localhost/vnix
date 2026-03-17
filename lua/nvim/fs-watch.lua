@@ -9,6 +9,11 @@ local function handle_runtime(filepath)
     pcall(require("nvim.state").process, data.panes)
     config.workspaces = data.workspaces
     config.active_pane = data.active_pane
+    config.procs = data.procs
+
+    if config.pickers.procs and config.pickers.procs.state then
+      config.pickers.procs.state:refresh()
+    end
   end
 end
 

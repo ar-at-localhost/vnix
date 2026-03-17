@@ -75,11 +75,7 @@ wezterm.on(
       activity.set_focused_pane(found_pane)
     end
 
-    pcall(function()
-      local fs = require("common.fs")
-      fs.write_json(vnix.vnix_dir .. "/runtime.json", vnix.runtime)
-    end)
-
+    state.save()
     wezterm.emit("vnix:update-status", win, pane)
   end
 )
