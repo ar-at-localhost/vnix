@@ -8,6 +8,7 @@ local function init()
     flat_panes = {},
     active_pane = nil,
     workspaces = {},
+    procs = {},
     return_to = 0,
     last_known_req = 0,
     dev_workspaces = {},

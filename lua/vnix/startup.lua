@@ -1,10 +1,11 @@
-local common = require("common")
 local wezterm = require("wezterm")
+local common = require("common")
+local tbl = require("common.tbl")
 local mux = require("vnix.mux")
 local config = require("vnix.config")
-local vnix = wezterm.GLOBAL.vnix
-local interval = 0.1 -- seconds
 local state = require("vnix.state")
+local interval = 0.1 -- seconds
+local vnix = wezterm.GLOBAL.vnix
 
 ---@class VnixStartupMod
 ---@field gui_startup fun(): nil
@@ -36,8 +37,10 @@ function M.restore(arg)
     loop_cmd = string.format("while true; do %s; done", nvim_cmd)
   end
 
+  local vnix_id = common.vnix_token
+
   local vnix_workspace = {
-    name = "___vnix___",
+    name = vnix_id,
     cwd = vnix.vnix_dir,
     env = {
       VNIX = "VNIX",
@@ -45,16 +48,67 @@ function M.restore(arg)
     },
     tabs = {
       {
-        name = "___vnix___",
+        name = vnix_id,
         pane = {
-          name = "___vnix___",
+          name = vnix_id,
           args = { vnix.shell, "-l", "-c", loop_cmd },
         },
       },
     },
   }
 
-  local _, win = mux.create_workspace(vnix_workspace)
+  -- auto start procs which are enabled for autostart.
+  vnix.runtime.procs = tbl.deep_copy(arg.procs)
+  for _, proc in ipairs(vnix.runtime.procs) do
+    proc.id = string.format("%s/%s", vnix_id, proc.title):lower()
+    proc.status = "ready"
+    proc.workspace = vnix_id
+
+    if proc.autostart then
+      table.insert(vnix_workspace.tabs, {
+        name = proc.title,
+        pane = {
+          name = proc.title,
+          cwd = proc.cwd,
+          args = wezterm.shell_split(proc.cmd),
+        },
+      })
+    end
+  end
+
+  local vnix_workspace_state, win = mux.create_workspace(vnix_workspace)
+  vnix.nvim = vnix_workspace_state.tabs[1]
+
+  -- Update running proc's status
+  do
+    local tabs = win:tabs()
+    for _, tab in ipairs(tabs) do
+      local ok, err = pcall(function()
+        local id = string.format("%s/%s", vnix_id, tab:get_title()):lower()
+        for _, proc in ipairs(vnix.runtime.procs) do
+          if proc.id == id then
+            proc.tab_id = tab:tab_id()
+            local pane = tab:active_pane()
+
+            if pane then
+              proc.status = "running"
+
+              if proc.preview then
+                proc.scrollback = pane:get_lines_as_escapes()
+              end
+            else
+              proc.status = "stopped"
+            end
+
+            break
+          end
+        end
+      end)
+
+      print(ok, err)
+    end
+  end
+
   mux.await_gui_window(win, function(gui_window)
     vnix._window_id = gui_window:window_id()
     gui_window:maximize()

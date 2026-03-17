@@ -1,7 +1,7 @@
-
 ---@class VnixWorkspaceState: VnixWorkspace
 ---@field id string
 ---@field tabs VnixTabState[]
+---@field procs VnixProcRuntime[]
 
 ---@class VnixTabState: VnixTab
 ---@field id number wezterm id
@@ -19,6 +19,14 @@
 ---@field tab string name of the tab
 ---@field tab_id number wezterm id
 ---@field tab_idx number tab index (0-based)
+
+---@class VnixProcRuntime :VnixProc
+---@field id string
+---@field workspace string
+---@field tab_id integer
+---@field scrollback string?
+---@field status 'ready' | 'running' | 'stopped'
+---@field last_updated integer
 
 ---@alias VnixFocus table<string, VnixPaneState?>
 

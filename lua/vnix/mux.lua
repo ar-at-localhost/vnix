@@ -68,6 +68,8 @@ end
 ---@param win string | MuxWindow
 ---@param workspace string
 ---@param idx integer
+---@return VnixTabState state
+---@return MuxTab mux_tab
 function M.create_tab(arg, win, workspace, idx)
   idx = idx or 0
   local first_pane = arg.pane
@@ -120,7 +122,7 @@ function M.create_tab(arg, win, workspace, idx)
   copy.pane.workspace = workspace
   copy.pane.cwd = copy.pane.cwd or copy.cwd
   copy.pane = M._split_pane(copy.pane, pane)
-  return copy
+  return copy, tab
 end
 
 function M.split_pane(arg, dir, pane)

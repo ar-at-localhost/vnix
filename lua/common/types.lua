@@ -1,4 +1,5 @@
 ---@class VNixCommon
+---@field vnix_token string
 ---@field VNIX_USER_VAR_NAME string
 ---@field attempt_create_file function(path: string) Attempts to create a new file at the given path.
 ---@field write_json fun(path: string, tbl: table): string Write Lua table as JSON to file.
@@ -78,6 +79,7 @@
 ---@field flat_panes VnixPanesFlat Vnix panes state
 ---@field active_pane VnixPaneState?
 ---@field workspaces VnixWorkspace[] Vnix panes state
+---@field procs VnixProcRuntime[] Vnix panes state
 ---@field return_to number where to return (last pane idx)
 ---@field dev_workspaces table<string, { cwd: string, idx: number }>
 ---@field dashboard snacks.dashboard.Class?

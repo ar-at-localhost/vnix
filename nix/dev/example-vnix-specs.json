@@ -1,4 +1,35 @@
 {
+  "procs": [
+    {
+      "cmd": "htop",
+      "title": "htop",
+      "desc": "Process monitor",
+      "autostart": true,
+      "preview": false
+    },
+    {
+      "cmd": "find ./lua -type f -name '*.lua'",
+      "title": "Lua Modules",
+      "desc": "List Lua modules of Vnix",
+      "autostart": true,
+      "preview": true,
+      "cwd": "/projects/ar/vnix"
+    },
+    {
+      "cmd": "top",
+      "title": "top",
+      "desc": "top process moniter",
+      "autostart": false,
+      "preview": true,
+      "cwd": "/projects/ar/vnix"
+    },
+    {
+      "cmd": "pkill -f vnix-dev",
+      "title": "Kill vnix-dev",
+      "desc": "Kill vnix-dev",
+      "autostart": false
+    }
+  ],
   "workspaces": [
     {
       "name": "vnix",

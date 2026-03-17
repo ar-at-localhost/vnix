@@ -1,6 +1,6 @@
 ---@generic UIMessageData
 
----@alias UIMessageType 'create' | 'debug' | 'inspect' | 'launch' | 'rename' | 'persist' | 'switch' | 'status' | 'org'
+---@alias UIMessageType 'create' | 'debug' | 'inspect' | 'launch' | 'rename' | 'persist' | 'switch' | 'status' | 'org' | 'procs'
 
 ---@class UIMessageReqBase<UIMessageData>
 ---@field id number
@@ -107,3 +107,16 @@
 ---@class UIMessageOrgReq :UIMessageReqBase
 ---@field type 'org'
 ---@field data nil
+
+--------------------------------------------------------------------------------
+---@class UIMessageProcsReq :UIMessageReqBase
+---@field type 'procs'
+---@field data UIMessageProcsReqData
+---@alias UIMessageProcsReqData 'vnix' | 'workspace' | 'all' | 'refresh'
+
+---@class UIMessageProcsResp :UIMessageRespBase
+---@field data UIMessageProcsRespData
+
+---@class UIMessageProcsRespData
+---@field action 'close' | 'run' | 'stop'
+---@field subject? VnixProcRuntime

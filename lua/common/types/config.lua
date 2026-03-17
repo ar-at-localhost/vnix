@@ -1,4 +1,5 @@
 ---@class VnixSpecs Vnix Specifications
+---@field procs? VnixProc[]
 ---@field workspaces VnixWorkspace[] Workspaces definations
 
 ---@class VnixWorkspace
@@ -9,6 +10,7 @@
 ---@field lazy? boolean Lazy loading
 ---@field layout? { name: string, opts: unknown }
 ---@field meta? table<string, unknown>
+---@field procs? VnixProc[]
 
 ---@class VnixTab
 ---@field name string Name
@@ -28,6 +30,15 @@
 ---@field bottom? VnixPane
 ---@field first_split? 'Right' | 'Bottom'
 ---@field meta? table<string, unknown>
+
+---@class VnixProc
+---@field cmd string
+---@field title string
+---@field desc? string?
+---@field cwd? string?
+---@field autostart? boolean
+---@field interactive? boolean
+---@field preview? boolean
 
 ---@class PaneSizeBase
 ---@field width? number

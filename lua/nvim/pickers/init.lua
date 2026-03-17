@@ -3,12 +3,14 @@ local pane = require("nvim.pickers.pane")
 local tab = require("nvim.pickers.tab")
 local orgtasks = require("nvim.pickers.org.tasks")
 local files = require("nvim.pickers.org.files")
+local procs = require("nvim.pickers.procs")
 
 ---@type VnixPickers
 local M = {
   workspace = workspace,
   tab = tab,
   pane = pane,
+  procs = procs,
   orgtasks = orgtasks,
   orgfiles = files,
 }
