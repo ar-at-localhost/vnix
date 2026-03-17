@@ -397,9 +397,10 @@ local picker = {
 
       Snacks.picker.orgfiles({
         confirm = function(_, file_item)
-          Snacks.picker.orgfiles({
+          Snacks.picker.orgtasks({
             dirs = opts.dirs,
             file = file_item.file,
+            level = 1,
             confirm = function(picker, dest_item)
               local source_headline_api = helpers.resolve_headline_api(item.node)
               local des_headline_api = helpers.resolve_headline_api(dest_item.node)
@@ -416,8 +417,6 @@ local picker = {
                     end)
                   end)
               end
-
-              return true
             end,
           })
         end,
