@@ -5,6 +5,8 @@ local M = {}
 ---@diagnostic disable-next-line: unused-local
 function M.handle(arg)
   local opts = {
+    node = nil,
+    level = 1,
     dirs = {
       config.vnix_dir,
     },

@@ -272,8 +272,9 @@ local picker = {
       opts.node = opts.node and opts.node:get_parent_headline()
       opts.level = opts.level - 1
 
-      if opts.level < 1 then
+      if opts.level <= 1 then
         opts.level = 1
+        opts.node = nil
       end
     end, "filter"),
 
