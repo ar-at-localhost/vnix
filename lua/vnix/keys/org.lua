@@ -23,6 +23,12 @@ local org = {
         action = act.EmitEvent("vnix:org-tasks"),
         description = "Org: Tasks",
       },
+      files = {
+        key = "f",
+        mods = "",
+        action = act.EmitEvent("vnix:org-files"),
+        description = "Org: Files",
+      },
     }),
   },
 }

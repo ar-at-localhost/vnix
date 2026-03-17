@@ -1,18 +1,18 @@
----@class VnixWorkspaceState: VnixWorkspace
+---@class VnixWorkspaceRuntime: VnixWorkspace
 ---@field id string
----@field tabs VnixTabState[]
+---@field tabs VnixTabRuntime[]
 ---@field procs VnixProcRuntime[]
 
----@class VnixTabState: VnixTab
+---@class VnixTabRuntime: VnixTab
 ---@field id number wezterm id
 ---@field idx number 0 based index
----@field pane VnixPaneState root pane
+---@field pane VnixPaneRuntime root pane
 
----@class VnixPaneState: VnixPane
----@field right? VnixPaneState
----@field bottom? VnixPaneState
----@field left? VnixPaneState
----@field top? VnixPaneState
+---@class VnixPaneRuntime: VnixPane
+---@field right? VnixPaneRuntime
+---@field bottom? VnixPaneRuntime
+---@field left? VnixPaneRuntime
+---@field top? VnixPaneRuntime
 ---@field id number wezterm id
 ---@field idx number 0 based index
 ---@field workspace string name of the workspace
@@ -28,7 +28,7 @@
 ---@field status 'ready' | 'running' | 'stopped'
 ---@field last_updated integer
 
----@alias VnixFocus table<string, VnixPaneState?>
+---@alias VnixFocus table<string, VnixPaneRuntime?>
 
 ---@class VnixPaneFlat
 ---@field pane_id number

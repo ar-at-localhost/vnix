@@ -106,13 +106,12 @@
 --------------------------------------------------------------------------------
 ---@class UIMessageOrgReq :UIMessageReqBase
 ---@field type 'org'
----@field data nil
+---@field data 'files' | 'tasks'
 
 --------------------------------------------------------------------------------
 ---@class UIMessageProcsReq :UIMessageReqBase
 ---@field type 'procs'
----@field data UIMessageProcsReqData
----@alias UIMessageProcsReqData 'vnix' | 'workspace' | 'all' | 'refresh'
+---@field data nil
 
 ---@class UIMessageProcsResp :UIMessageRespBase
 ---@field data UIMessageProcsRespData

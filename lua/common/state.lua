@@ -2,7 +2,7 @@
 local M = {} ---@type StateUtils
 
 ---Convert workspace to spec
----@param workspace VnixWorkspaceState
+---@param workspace VnixWorkspaceRuntime
 ---@return VnixWorkspace
 function M.workspace_to_spec(workspace)
   ---@type VnixWorkspace
@@ -21,7 +21,7 @@ function M.workspace_to_spec(workspace)
 end
 
 ---Convert tab to spec
----@param tab VnixTabState
+---@param tab VnixTabRuntime
 ---@return VnixTab
 function M.tab_to_specs(tab)
   ---@type VnixTab
@@ -37,7 +37,7 @@ function M.tab_to_specs(tab)
   return spec
 end
 
----@param pane VnixPaneState
+---@param pane VnixPaneRuntime
 ---@return VnixPane
 function M.pane_to_spec(pane)
   ---@type VnixPane

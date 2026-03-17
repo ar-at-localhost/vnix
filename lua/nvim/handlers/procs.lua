@@ -10,15 +10,10 @@ function M.handle(arg)
   }
   ---@type string?
 
-  if arg.data == "vnix" then
-    opts.workspace = common.vnix_token
-  elseif
-    arg.data == "workspace"
-    and config.active_pane
-    and config.active_pane.meta
-    and config.active_pane.meta.layout == "dev"
-  then
+  if config.active_pane and config.active_pane.workspace then
     opts.workspace = config.active_pane.workspace
+  else
+    opts.workspace = common.vnix_token
   end
 
   if not config.pickers.procs then
@@ -29,7 +24,7 @@ function M.handle(arg)
 
   local picker = config.pickers.procs.state
 
-  if not picker then
+  if not picker or not picker:is_active() then
     picker = Snacks.picker.procs(opts)
   end
 
@@ -37,8 +32,6 @@ function M.handle(arg)
     source = "procs",
     state = picker,
   }
-
-  picker:show()
 end
 
 return M

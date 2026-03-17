@@ -53,9 +53,9 @@ end
 ---Kill a tab
 ---@param win Window
 ---@param pane Pane
----@param workspace VnixWorkspaceState? Target workspace
+---@param workspace VnixWorkspaceRuntime? Target workspace
 ---@param workspace_idx integer? Target workspace index (1-based)
----@param tab VnixTabState? Target tab
+---@param tab VnixTabRuntime? Target tab
 ---@param tab_idx integer? Target tab index (1-base)
 function M.kill_tab(win, pane, workspace, workspace_idx, tab, tab_idx)
   local w, wi, t, ti = workspace, workspace_idx, tab, tab_idx
@@ -98,7 +98,7 @@ end
 ---Kill a workspace
 ---@param win Window
 ---@param pane Pane
----@param workspace VnixWorkspaceState? Target workspace
+---@param workspace VnixWorkspaceRuntime? Target workspace
 ---@param workspace_idx integer? Target workspace index (1-based)
 function M.kill_workspace(win, pane, workspace, workspace_idx)
   local w, wi = workspace, workspace_idx

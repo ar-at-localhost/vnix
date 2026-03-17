@@ -3,15 +3,15 @@ local mux = wezterm.mux
 local tbl = require("common.tbl")
 
 ---@class VnixMuxMod
----@field create_workspace fun(arg: VnixWorkspace): VnixWorkspaceState, MuxWindow  Create a workspace
----@field _split_pane fun(arg: VnixPaneState, pane: Pane): VnixPaneState Split an exisitng pane (recursive)
----@field split_pane fun(arg: VnixPaneState, dir: 'Right' | 'Bottom', pane: Pane): VnixPaneState, Pane Split a pane
+---@field create_workspace fun(arg: VnixWorkspace): VnixWorkspaceRuntime, MuxWindow  Create a workspace
+---@field _split_pane fun(arg: VnixPaneRuntime, pane: Pane): VnixPaneRuntime Split an exisitng pane (recursive)
+---@field split_pane fun(arg: VnixPaneRuntime, dir: 'Right' | 'Bottom', pane: Pane): VnixPaneRuntime, Pane Split a pane
 ---@field await_gui_window fun(win: MuxWindow, cb: fun(win: Window), _attempt?: number, _switch_requested?: boolean) Wait for gui window to be attached
 ---@field normalize_args fun(args: string | string[] | nil): { paste?: string, args: string[] | nil}
 local M = {} ---@type VnixMuxMod
 
 function M.create_workspace(arg)
-  local copy = tbl.deep_copy(arg) ---@type VnixWorkspaceState
+  local copy = tbl.deep_copy(arg) ---@type VnixWorkspaceRuntime
   local first_tab = arg.tabs[1]
 
   if not first_tab then
@@ -68,7 +68,7 @@ end
 ---@param win string | MuxWindow
 ---@param workspace string
 ---@param idx integer
----@return VnixTabState state
+---@return VnixTabRuntime state
 ---@return MuxTab mux_tab
 function M.create_tab(arg, win, workspace, idx)
   idx = idx or 0
@@ -112,7 +112,7 @@ function M.create_tab(arg, win, workspace, idx)
     pane:send_paste(arg_opts.paste)
   end
 
-  local copy = tbl.deep_copy(arg) ---@type VnixTabState
+  local copy = tbl.deep_copy(arg) ---@type VnixTabRuntime
   copy.id = tab:tab_id()
   copy.pane.name = arg.pane.name
   copy.pane.id = pane:pane_id()
@@ -134,7 +134,7 @@ function M.split_pane(arg, dir, pane)
     cwd = arg.cwd,
   })
 
-  local copy = tbl.deep_copy(arg) ---@type VnixPaneState
+  local copy = tbl.deep_copy(arg) ---@type VnixPaneRuntime
   copy.id = new_pane:pane_id()
   return copy, new_pane
 end
@@ -153,11 +153,11 @@ function M._split_pane(arg, pane)
   end
 
   local second = first == "right" and "bottom" or "right"
-  local copy = tbl.deep_copy(arg) ---@type VnixPaneState
+  local copy = tbl.deep_copy(arg) ---@type VnixPaneRuntime
 
   if first and arg[first] then
     local split
-    local child = copy[first] ---@type VnixPaneState
+    local child = copy[first] ---@type VnixPaneRuntime
     child.workspace = copy.workspace
     child.tab = copy.tab
     child.tab_id = copy.tab_id
@@ -169,7 +169,7 @@ function M._split_pane(arg, pane)
 
   if second and arg[second] then
     local split
-    local child = copy[second] ---@type VnixPaneState
+    local child = copy[second] ---@type VnixPaneRuntime
     child.workspace = copy.workspace
     child.tab = copy.tab
     child.tab_id = copy.tab_id

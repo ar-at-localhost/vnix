@@ -11,9 +11,19 @@ local function handle_runtime(filepath)
     config.active_pane = data.active_pane
     config.procs = data.procs
 
-    if config.pickers.procs and config.pickers.procs.state then
-      config.pickers.procs.state:refresh()
+    for _, w in pairs(config.workspaces) do
+      if w.orgpath and type(w.orgpath) == "string" then
+        w.orgpath = (w.orgpath or ""):gsub("/$", "")
+      end
+
+      if not w.orgpath or w.orgpath == "" then
+        w.orgpath = nil
+      end
     end
+
+    pcall(function()
+      config.pickers.procs.state:refresh()
+    end)
   end
 end
 

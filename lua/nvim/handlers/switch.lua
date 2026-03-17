@@ -23,17 +23,16 @@ function M.handle(req)
     end
   end
 
-  local picker = config.pickers.switch
+  local picker_src = config.pickers.switch and config.pickers.switch.source or "pane"
 
-  if not picker then
-    picker = "pane"
-    config.pickers.switch = picker
-  end
+  local picker = Snacks.picker.resume({
+    source = picker_src,
+  })
 
-  if picker then
-    Snacks.picker.resume({
-      source = picker,
-    })
+  if picker_src ~= "pane" then
+    pcall(function()
+      picker:refresh()
+    end)
   end
 end
 

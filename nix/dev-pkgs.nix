@@ -15,6 +15,8 @@
   example__vnix__config = builtins.replaceStrings ["_cwd_"] [repo] example__vnix__config_orig;
   example_wezterm_cfg = builtins.readFile ./dev/example-wezterm-config.lua;
 
+  orgfiles = ./dev/orgfiles;
+
   specs_json = pkgs.writeTextFile {
     name = "specs.json";
     text = example__vnix__config;
@@ -33,9 +35,10 @@
     dontUnpack = true;
 
     installPhase = ''
-      mkdir -p $out
+      mkdir -p $out/orgfiles
       cp ${specs_json} $out/specs.json
       cp ${wezterm_lua} $out/wezterm.lua
+      cp -r ${orgfiles}/* $out/orgfiles/
     '';
   };
 
@@ -70,6 +73,8 @@ in {
         mkdir -p /tmp/vnix-dev/config /tmp/vnix-dev/data /tmp/vnix-dev/cache
         cp ${vnixWeztermDevConfig}/specs.json /tmp/vnix-dev/
         cp ${vnixWeztermDevConfig}/wezterm.lua /tmp/vnix-dev/
+        cp -r ${vnixWeztermDevConfig}/orgfiles /tmp/vnix-dev/
+        chmod -R u+w /tmp/vnix-dev/orgfiles
         " \
         --add-flags "--config-file /tmp/vnix-dev/wezterm.lua" \
         --add-flags "start --always-new-process"

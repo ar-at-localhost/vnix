@@ -21,6 +21,7 @@ orgfiles_picker_opts.finder = function(opts)
   local items = {}
 
   pcall(function()
+    orgmode.files:load_sync(true)
     local orgfiles = orgmode.files.files
 
     for path, file in pairs(orgfiles) do

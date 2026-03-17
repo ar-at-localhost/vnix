@@ -11,6 +11,7 @@
 ---@field layout? { name: string, opts: unknown }
 ---@field meta? table<string, unknown>
 ---@field procs? VnixProc[]
+---@field orgpath? string Orgfiles path (must be directory) relative to workspace `cwd`. Omitting (or setting to `false`) will disable Orgmode for workspace (which otherwise means using VNix directory for this workspace).
 
 ---@class VnixTab
 ---@field name string Name

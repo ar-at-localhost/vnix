@@ -13,18 +13,13 @@ wezterm.on(
   ---cb
   ---@param win Window
   ---@param pane Pane
-  ---@param filter UIMessageProcsReqData?
-  function(win, pane, filter)
-    if not filter then
-      filter = "workspace"
-    end
-
+  function(win, pane)
     ---@type UIMessageProcsReq
     local payload = {
       id = 0,
       type = "procs",
       return_to = 0,
-      data = filter,
+      data = nil,
       pid = wezterm.procinfo.pid(),
     }
 
@@ -66,18 +61,18 @@ events.make_event(
           end
         end
       end
-    end)
 
-    local _, tab = mux.create_tab({
-      name = subject.title,
-      pane = {
+      local _, tab = mux.create_tab({
         name = subject.title,
-        cwd = subject.cwd,
-        args = wezterm.shell_split(subject.cmd),
-      },
-    }, mux_win, subject.workspace, #mux_win:tabs())
+        pane = {
+          name = subject.title,
+          cwd = subject.cwd,
+          args = wezterm.shell_split(subject.cmd),
+        },
+      }, mux_win, subject.workspace, #mux_win:tabs())
 
-    state.update_proc(subject, tab, state.find_workspace_by_name(workspace))
+      state.update_proc(subject, tab, state.find_workspace_by_name(workspace), true)
+    end)
 
     -- Switch to vnix workspace for user interaction
     win:perform_action(
@@ -127,7 +122,7 @@ events.make_event(
       end
     end)
 
-    state.update_proc(subject, nil, state.find_workspace_by_name(workspace))
+    state.update_proc(subject, nil, state.find_workspace_by_name(workspace), true)
 
     -- Switch to vnix workspace for user interaction
     win:perform_action(
