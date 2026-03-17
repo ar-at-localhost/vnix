@@ -44,12 +44,22 @@
     },
     {
       "name": "vnix-dev",
+      "orgpath": "orgfiles/",
+
       "layout": {
         "name": "dev",
         "opts": {
           "cwd": "_cwd_"
         }
-      }
+      },
+
+      "procs": [
+        {
+          "title": "Status",
+          "cmd": "git status",
+          "desc": "Check git status"
+        }
+      ]
     }
   ]
 }

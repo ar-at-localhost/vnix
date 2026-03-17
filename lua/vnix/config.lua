@@ -74,12 +74,22 @@ function M.load()
     }
   end
 
-  for _, v in ipairs(specs.workspaces) do
-    if v.layout then
-      local template = templates.get_workspace_template(v.layout.name)
+  for _, w in ipairs(specs.workspaces) do
+    if w.layout then
+      local template = templates.get_workspace_template(w.layout.name)
       if template then
-        specs.workspaces[_] = template.apply(v.layout.opts, v)
+        specs.workspaces[_] = template.apply(w.layout.opts, w)
       end
+    end
+
+    if not w.procs or type(w.procs) ~= "table" or not w.procs[1] then
+      w.procs = {}
+    end
+
+    for _, p in ipairs(w.procs) do
+      ---@cast p VnixProcRuntime
+      p.workspace = w.name
+      p.status = "ready"
     end
   end
 

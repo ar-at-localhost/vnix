@@ -77,11 +77,10 @@
 ---@field src_dir? string vnix directory path
 ---@field _ns integer unknown
 ---@field flat_panes VnixPanesFlat Vnix panes state
----@field active_pane VnixPaneState?
+---@field active_pane VnixPaneRuntime?
 ---@field workspaces VnixWorkspace[] Vnix panes state
 ---@field procs VnixProcRuntime[] Vnix panes state
 ---@field return_to number where to return (last pane idx)
----@field dev_workspaces table<string, { cwd: string, idx: number }>
 ---@field dashboard snacks.dashboard.Class?
 ---@field pickers VnixActivePickers
 ---@field pad_half string

@@ -4,27 +4,27 @@ local t = require("common.time")
 local vnix = wezterm.GLOBAL.vnix
 
 ---@class VnixStateMod
----@field remove_pane fun(pane: VnixPaneState): nil Remove a pane
----@field find_pane fun(workspace: string, tab: number, pane: number): VnixPaneState? Find a pane by identities
----@field find_workspace_by_name fun(name: string): VnixWorkspaceState?, number? Find a pane by identities
----@field find_tab_by_id fun(workspace: VnixWorkspaceState, id: number): VnixTabState?, number? Find a pane by identities
----@field _find_pane fun(source: VnixPaneState, target: VnixPaneState): VnixPaneState? Remove a panes in the tree & returns it
+---@field remove_pane fun(pane: VnixPaneRuntime): nil Remove a pane
+---@field find_pane fun(workspace: string, tab: number, pane: number): VnixPaneRuntime? Find a pane by identities
+---@field find_workspace_by_name fun(name: string): VnixWorkspaceRuntime?, number? Find a pane by identities
+---@field find_tab_by_id fun(workspace: VnixWorkspaceRuntime, id: number): VnixTabRuntime?, number? Find a pane by identities
+---@field _find_pane fun(source: VnixPaneRuntime, target: VnixPaneRuntime): VnixPaneRuntime? Remove a panes in the tree & returns it
 local M = {} ---@type VnixStateMod
 
 ---Set workspace's state
----@param workspaces VnixWorkspaceState[]
+---@param workspaces VnixWorkspaceRuntime[]
 function M.set_workspaces(workspaces)
   vnix.runtime.workspaces = workspaces
 end
 
 ---Get workspace's state
----@return VnixWorkspaceState[]
+---@return VnixWorkspaceRuntime[]
 function M.get_workspaces()
   return vnix.runtime.workspaces
 end
 
 ---Save a workspace (to both state / config)
----@param workspace VnixWorkspaceState Stateful workspace
+---@param workspace VnixWorkspaceRuntime Stateful workspace
 function M.save_workspace(workspace)
   local found = false
   do
@@ -84,11 +84,11 @@ function M.find_workspace_by_name(name)
 end
 
 ---Save a new tab to the state
----@param tab VnixTabState Target tab
----@param workspace VnixWorkspaceState? Target workspace
+---@param tab VnixTabRuntime Target tab
+---@param workspace VnixWorkspaceRuntime? Target workspace
 ---@param at? integer position of insertion
----@return VnixWorkspaceState workspace workspace of insertion
----@return VnixTabState tab inserted tab
+---@return VnixWorkspaceRuntime workspace workspace of insertion
+---@return VnixTabRuntime tab inserted tab
 ---@return number idx index of inserted tab
 function M.save_tab(tab, workspace, at)
   workspace = workspace or M.find_workspace_by_name(tab.pane.workspace)
@@ -110,7 +110,7 @@ function M.save_tab(tab, workspace, at)
 end
 
 ---Remove a tab
----@param workspace VnixWorkspaceState target workspace
+---@param workspace VnixWorkspaceRuntime target workspace
 ---@param idx integer index of tab to be remove (1-based)
 ---@return integer count the new length of tabs in workspace
 ---@return integer idx removed tab's index
@@ -128,12 +128,12 @@ function M.remove_tab(workspace, idx)
 end
 
 ---Rename a tab
----@param workspace VnixWorkspaceState target workspace
+---@param workspace VnixWorkspaceRuntime target workspace
 ---@param id integer Wezterm Tab ID
 ---@param name string new name
 ---@return integer idx removed tab's wezterm ID
 function M.rename_tab(workspace, id, name)
-  ---@type VnixTabState
+  ---@type VnixTabRuntime
   local tab = nil
 
   for _, v in ipairs(workspace.tabs) do
@@ -254,11 +254,11 @@ function M._find_pane(source, target)
 end
 
 ---Depth first search for pane by id, name or check
----@param node VnixPaneState
+---@param node VnixPaneRuntime
 ---@param pane_id_or_name? string|number name or id of the pane
----@param check? fun(node: VnixPaneState): boolean
----@return VnixPaneState? found  The found pane
----@return VnixPaneState? parent The parent pane
+---@param check? fun(node: VnixPaneRuntime): boolean
+---@return VnixPaneRuntime? found  The found pane
+---@return VnixPaneRuntime? parent The parent pane
 function M._dfs_find(node, pane_id_or_name, check)
   if node then
     if
@@ -328,13 +328,13 @@ end
 
 ---Find pane by id or return first maching the check
 ---@param id? integer
----@param check? fun(p:VnixPaneState, v: VnixPaneState, w: VnixWorkspaceState): boolean
----@return VnixPaneState? pane Pane
----@return VnixTabState? tab Tab
+---@param check? fun(p:VnixPaneRuntime, v: VnixPaneRuntime, w: VnixWorkspaceRuntime): boolean
+---@return VnixPaneRuntime? pane Pane
+---@return VnixTabRuntime? tab Tab
 ---@return integer? tab_index Tab index (1-based)
----@return VnixWorkspaceState? workspace workspace
+---@return VnixWorkspaceRuntime? workspace workspace
 ---@return integer? workspace_index Index of the workspace (1-based)
----@return VnixPaneState? parent_node Parent of the pane
+---@return VnixPaneRuntime? parent_node Parent of the pane
 function M.find_pane_by_id(id, check)
   local workspaces = M.get_workspaces()
   for wi, w in ipairs(workspaces) do
@@ -354,7 +354,7 @@ end
 
 ---Find a proc
 ---@param id string
----@param workspace VnixWorkspaceState?
+---@param workspace VnixWorkspaceRuntime?
 ---@return VnixProcRuntime? proc
 ---@return integer? idx
 function M.find_proc(id, workspace)
@@ -375,7 +375,7 @@ end
 ---@return VnixProcRuntime? proc
 ---@return integer? idx
 ---@return VnixProcRuntime[]? source
----@return VnixWorkspaceState? workspace
+---@return VnixWorkspaceRuntime? workspace
 function M.find_proc_by_tab_id(id)
   for i, v in ipairs(vnix.runtime.procs) do
     if v.tab_id == id then
@@ -395,7 +395,7 @@ end
 ---Update a proc info
 ---@param proc VnixProcRuntime
 ---@param tab MuxTab?
----@param workspace VnixWorkspaceState?
+---@param workspace VnixWorkspaceRuntime?
 ---@param save? boolean
 function M.update_proc(proc, tab, workspace, save)
   if not workspace and proc.workspace ~= common.vnix_token then
@@ -409,8 +409,10 @@ function M.update_proc(proc, tab, workspace, save)
 
   if tab then
     local pane = tab:panes()[1]
-    proc_found.scrollback = pane:get_lines_as_escapes(30)
-    proc_found.status = "running"
+    if pane then
+      proc_found.scrollback = pane:get_lines_as_escapes(30)
+      proc_found.status = "running"
+    end
   else
     proc_found.status = "stopped"
   end

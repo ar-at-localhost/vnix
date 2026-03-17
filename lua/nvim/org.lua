@@ -15,8 +15,11 @@ function M.setup()
   local org_paths = { string.format("%s/orgfiles/**/*.org", config.vnix_dir) }
   local org_notes_path = Path:new(config.vnix_dir):joinpath("orgfiles", "notes.org").filename
 
-  for _, w in pairs(config.dev_workspaces) do
-    table.insert(org_paths, string.format("%s/orgfiles/**/*.org", w.cwd))
+  for _, w in pairs(config.workspaces) do
+    if w.orgpath and type(w.orgpath) == "string" then
+      local orgpath = (w.orgpath or ""):gsub("/$", "")
+      table.insert(org_paths, string.format("%s/%s/**/*.org", w.cwd, orgpath))
+    end
   end
 
   local Menu = require("org-modern.menu")

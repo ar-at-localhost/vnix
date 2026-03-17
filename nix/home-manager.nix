@@ -136,10 +136,70 @@
       };
     };
 
+  proc-option = lib.types.submodule {
+    options = {
+      title = lib.mkOption {
+        description = "Proc title";
+        type = lib.types.str;
+        example = "top";
+      };
+      cmd = lib.mkOption {
+        description = "Proc Command";
+        type = lib.types.str;
+        example = "top";
+      };
+      cwd = lib.mkOption {
+        description = "Cwd (defaults to vnix_dir for top-level procs and workspace dir for workspace level procs)";
+        type = lib.types.nullOr lib.types.str;
+        example = "/tmp/top";
+        default = null;
+      };
+      desc = lib.mkOption {
+        description = "Description of Proc";
+        type = lib.types.nullOr lib.types.str;
+        example = "Process moniter";
+        default = null;
+      };
+      autostart = lib.mkOption {
+        description = "Flag to automatically start the proc upon Vnix init (for Vnix level procs) or Workspace init (for workspce level procs)";
+        type = lib.types.bool;
+        default = true;
+      };
+      interactive = lib.mkOption {
+        description = "Flag to mark a proc as an interactive (which will switch to its tab upon creation and let you switch to it later as well).";
+        type = lib.types.bool;
+        example = true;
+        default = false;
+      };
+    };
+  };
+
   mkWorkspaceType = _:
     lib.types.submodule {
       options = {
         name = mkNameOption {description = "Workspace Name";};
+
+        orgpath = lib.mkOption {
+          description = "Orgfiles Path (relative to `cwd`. If omitted, Vnix orgfiles path will be used for this workspace instead.)";
+          type = lib.types.nullOr lib.types.str;
+          default = "";
+        };
+
+        procs = lib.mkOption {
+          description = "Procs defination";
+          type = lib.types.listOf proc-option;
+          default = [];
+          example = [
+            {
+              title = "top";
+              cmd = "top -o pid";
+              cwd = "/tmp";
+              desc = "Process moniter";
+              autostart = true;
+              interactive = true;
+            }
+          ];
+        };
 
         layout = lib.mkOption {
           description = "Workspace layout";
@@ -198,6 +258,22 @@
                       name = "blank";
                     };
                   };
+                }
+              ];
+            };
+
+            procs = lib.mkOption {
+              description = "Procs defination";
+              type = lib.types.listOf proc-option;
+              default = [];
+              example = [
+                {
+                  title = "top";
+                  cmd = "top -o pid";
+                  cwd = "/tmp";
+                  desc = "Process moniter";
+                  autostart = true;
+                  interactive = true;
                 }
               ];
             };

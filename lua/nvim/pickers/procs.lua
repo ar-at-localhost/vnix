@@ -1,3 +1,4 @@
+local common = require("common")
 local t = require("common.time")
 local config = require("nvim.config")
 local resp = require("nvim.resp")
@@ -73,8 +74,19 @@ local procs_picker_opts = {
   ---@param opts VnixProcsPickerConfig
   finder = function(opts)
     local items = {}
+    local procs = {}
 
-    for _, v in ipairs(config.procs) do
+    if opts.workspace ~= common.vnix_token then
+      for i, v in ipairs(config.workspaces) do
+        if v.name == opts.workspace then
+          procs = v.procs
+        end
+      end
+    end
+
+    procs = procs or config.procs
+
+    for _, v in ipairs(procs) do
       local status_formatted = v.status and v.status:gsub("%l^", string.upper) or ""
       local last_updated = v.last_updated or nil
       local last_updated_formatted = ""
@@ -140,6 +152,10 @@ local procs_picker_opts = {
       ))
     end),
   },
+
+  confirm = function()
+    resp.switch()
+  end,
 
   win = {
     input = {

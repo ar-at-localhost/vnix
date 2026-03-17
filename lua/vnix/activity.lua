@@ -4,8 +4,8 @@ local vnix = wezterm.GLOBAL.vnix
 
 ---@class VnixActivityMod
 ---@field load_from_file fun(path: string): VnixRuntime Load activity from file
----@field lookup_focused_pane fun(workspace: string, tab?: number): VnixPaneState? Lookup pane from activity
----@field set_focused_pane fun(pane: VnixPaneState) Save pane to activity
+---@field lookup_focused_pane fun(workspace: string, tab?: number): VnixPaneRuntime? Lookup pane from activity
+---@field set_focused_pane fun(pane: VnixPaneRuntime) Save pane to activity
 local M = {}
 
 ---Loads activity file from given path

@@ -1,6 +1,15 @@
 local config = require("nvim.config")
 local M = {}
 
+local function get_org_dir()
+  local workspace_name = config.active_pane and config.active_pane.workspace
+  for _, v in ipairs(config.workspaces) do
+    if v.name == workspace_name and v.orgpath and type(v.orgpath) == "string" then
+      return string.format("%s/%s", v.cwd, v.orgpath)
+    end
+  end
+end
+
 ---@param arg UIMessageOrgReq
 ---@diagnostic disable-next-line: unused-local
 function M.handle(arg)
@@ -13,15 +22,20 @@ function M.handle(arg)
   }
   ---@type string?
 
-  if config.active_pane and config.active_pane.meta and config.active_pane.meta.layout == "dev" then
-    for i, v in pairs(config.dev_workspaces) do
-      if i == config.active_pane.workspace then
-        opts.dirs = { v.cwd }
-      end
-    end
+  local orgdir = get_org_dir()
+  if orgdir then
+    opts.dirs = { orgdir }
   end
 
-  Snacks.picker.orgtasks(opts)
+  if not arg.data then
+    arg.data = "tasks"
+  end
+
+  if arg.data == "tasks" then
+    Snacks.picker.orgtasks(opts)
+  else
+    Snacks.picker.orgfiles(opts)
+  end
 end
 
 return M

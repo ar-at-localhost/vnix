@@ -8,7 +8,7 @@
 ---@field dev? boolean Enable dev mode-
 --------------------------------------------------------------------------------
 ---@class VNixGlobal
----@field nvim? VnixTabState
+---@field nvim? VnixTabRuntime
 ---@field vnix_dir? string
 ---@field is_ready? boolean
 ---@field user_home string Home directory of the user
@@ -29,10 +29,10 @@
 --------------------------------------------------------------------------------
 ---@class VnixRuntime
 ---@field keybindings? VNixKeybindingInfo[]
----@field active_pane? VnixPaneState
+---@field active_pane? VnixPaneRuntime
 ---@field focus VnixFocus
 ---@field procs VnixProcRuntime[]
----@field workspaces VnixWorkspaceState[]
+---@field workspaces VnixWorkspaceRuntime[]
 ---@field panes VnixPanesFlat
 ---@field sock_path string
 

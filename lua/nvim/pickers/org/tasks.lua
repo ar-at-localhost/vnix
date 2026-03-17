@@ -181,7 +181,7 @@ local picker = {
   ---@param opts SnacksOrgTasksPickerConfig
   ---@return VnixOrgTasksPickerItem[]
   finder = function(opts)
-    orgmode:reload()
+    orgmode.files:load_sync(true)
     local files = orgmode.files
     ---@type VnixOrgTasksPickerItem[]
     local items = {}

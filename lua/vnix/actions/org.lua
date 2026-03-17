@@ -1,7 +1,8 @@
 local wezterm = require("wezterm")
 local rpc = require("vnix.rpc")
+local events = require("vnix.events")
 
-wezterm.on(
+events.make_event(
   "vnix:org-tasks",
   ---cb
   ---@param win Window
@@ -12,7 +13,26 @@ wezterm.on(
       id = 0,
       type = "org",
       return_to = 0,
-      data = nil,
+      data = "tasks",
+      pid = wezterm.procinfo.pid(),
+    }
+
+    rpc.dispatch(win, pane, payload)
+  end
+)
+
+events.make_event(
+  "vnix:org-files",
+  ---cb
+  ---@param win Window
+  ---@param pane Pane
+  function(win, pane)
+    ---@type UIMessageOrgReq
+    local payload = {
+      id = 0,
+      type = "org",
+      return_to = 0,
+      data = "files",
       pid = wezterm.procinfo.pid(),
     }
 

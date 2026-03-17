@@ -1,4 +1,5 @@
 local env = require("common.env")
+local tbl = require("common.tbl")
 local home = env.get_env("HOME")
 
 ---@class WorkspaceTempates
@@ -164,7 +165,7 @@ M.dev = {
       },
     }
 
-    return dev_workspace
+    return tbl.deep_merge(base, dev_workspace)
   end,
 
   form = {
