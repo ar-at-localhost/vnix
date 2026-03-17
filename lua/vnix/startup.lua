@@ -58,7 +58,7 @@ function M.restore(arg)
   }
 
   -- auto start procs which are enabled for autostart.
-  vnix.runtime.procs = tbl.deep_copy(arg.procs)
+  vnix.runtime.procs = arg.procs or {}
   for _, proc in ipairs(vnix.runtime.procs) do
     proc.id = string.format("%s/%s", vnix_id, proc.title):lower()
     proc.status = "ready"

@@ -64,6 +64,16 @@ function M.load()
     )
   end
 
+  if not specs.procs then
+    specs.procs = {
+      {
+        title = "Quit Vnix",
+        cmd = string.format("kill -9 %d", wezterm.procinfo.pid() or -1),
+        desc = "Force kill vnix",
+      },
+    }
+  end
+
   for _, v in ipairs(specs.workspaces) do
     if v.layout then
       local template = templates.get_workspace_template(v.layout.name)
