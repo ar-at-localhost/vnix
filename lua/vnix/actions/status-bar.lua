@@ -1,5 +1,6 @@
 local wezterm = require("wezterm")
 local rpc = require("vnix.rpc")
+local events = require("vnix.events")
 local vnix = wezterm.GLOBAL.vnix
 
 ---@class Config
@@ -131,11 +132,18 @@ wezterm.on("vnix:update-status", function(win, pane)
   end)
 end)
 
-local function sync_status()
+---@param onshot? boolean
+local function sync_status(onshot)
   if vnix and vnix.is_ready then
     vnix.status = rpc.get_status() or nil
-    wezterm.time.call_after(60, sync_status)
+    if not onshot then
+      wezterm.time.call_after(60, sync_status)
+    end
   end
 end
+
+events.make_event("vnix:sync-status", function(_, _)
+  sync_status(true)
+end)
 
 sync_status()

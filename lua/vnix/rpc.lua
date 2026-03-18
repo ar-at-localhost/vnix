@@ -118,6 +118,16 @@ function M.parse(win, pane, data)
     end
   end
 
+  --- Org messages
+  if parsed.type == "org" then
+    ---@cast parsed UIMessageOrgResp
+    if parsed.data and parsed.data.sync_clock then
+      wezterm.emit("vnix:sync-status")
+    end
+
+    wezterm.emit("vnix:switch-to", parsed.return_to)
+  end
+
   --- Procs messages
   if parsed.type == "procs" then
     ---@cast parsed UIMessageProcsResp

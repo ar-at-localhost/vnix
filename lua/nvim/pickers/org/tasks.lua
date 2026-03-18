@@ -17,9 +17,14 @@ local helpers = require("nvim.org.helpers")
 ---@field file string?
 ---@field keywords table<string, string>?
 ---@field node? OrgHeadline
+---@field actions SnacksOrgTasksPickerActionsSpecs
+---@field hooks? { after?: table<SnacksOrgTasksPickerAction, fun(item: SnacksOrgTasksPickerItem, picker: snacks.Picker, action?: SnacksOrgTasksPickerAction)> }
+
+---@alias SnacksOrgTasksPickerActionsSpecs table<SnacksOrgTasksPickerAction, snacks.picker.Action.spec>
+---@alias SnacksOrgTasksPickerAction 'priority_up' | 'priority_down' | 'toggle_clock' | 'refile' | 'refile_to_headline'
 
 ---@class SnacksOrgTasksPickerFilter
----@field filter fun(item: VnixOrgTasksPickerItem, filter: SnacksOrgTasksPickerFilterOpts):boolean?
+---@field filter fun(item: SnacksOrgTasksPickerItem, filter: SnacksOrgTasksPickerFilterOpts):boolean?
 
 ---@class SnacksOrgTasksPickerSort
 ---@field fields SnacksOrgTasksPickerSortFields
@@ -34,7 +39,7 @@ local helpers = require("nvim.org.helpers")
 ---@field keywords table<string, string>?
 ---@field node? OrgHeadline
 
----@class VnixOrgTasksPickerItem
+---@class SnacksOrgTasksPickerItem
 ---@field node OrgHeadline
 ---@field file string
 ---@field text string
@@ -118,11 +123,11 @@ local keys = {
   },
 }
 
----@param cb fun(item: VnixOrgTasksPickerItem, picker: SnacksOrgTasksPicker)
+---@param cb fun(item: SnacksOrgTasksPickerItem, picker: SnacksOrgTasksPicker)
 ---@param kind? 'filter' | 'mutation' | 'done'
 local function make_action(cb, kind)
   ---@param picker SnacksOrgTasksPicker
-  ---@param item VnixOrgTasksPickerItem
+  ---@param item SnacksOrgTasksPickerItem
   return function(picker, item)
     cb(item, picker)
 
@@ -163,7 +168,7 @@ local picker = {
   auto_close = false,
   preview = "preview",
 
-  ---@param item VnixOrgTasksPickerItem
+  ---@param item SnacksOrgTasksPickerItem
   ---@param picker SnacksOrgTasksPicker
   format = function(item, picker)
     return {
@@ -179,11 +184,11 @@ local picker = {
   end,
 
   ---@param opts SnacksOrgTasksPickerConfig
-  ---@return VnixOrgTasksPickerItem[]
+  ---@return SnacksOrgTasksPickerItem[]
   finder = function(opts)
     orgmode.files:load_sync(true)
     local files = orgmode.files
-    ---@type VnixOrgTasksPickerItem[]
+    ---@type SnacksOrgTasksPickerItem[]
     local items = {}
 
     for _, f in pairs(files.files) do
@@ -194,7 +199,7 @@ local picker = {
         local deadline = h:get_deadline_date()
         local priority = h:get_priority()
 
-        ---@type VnixOrgTasksPickerItem
+        ---@type SnacksOrgTasksPickerItem
         local item = {
           node = h,
           file = f.filename,
@@ -228,7 +233,7 @@ local picker = {
     return items
   end,
 
-  ---@param item VnixOrgTasksPickerItem
+  ---@param item SnacksOrgTasksPickerItem
   ---@param ctx snacks.picker.finder.ctx
   transform = function(item, ctx)
     local opts = ctx.picker.opts --[[@cast opts SnacksOrgTasksPickerConfig]]
@@ -352,13 +357,17 @@ local picker = {
     status_done = make_status_action("DONE"),
     status_closed = make_status_action("CLOSED"),
 
-    toggle_clock = make_action(function(item)
+    toggle_clock = make_action(function(item, picker)
       local headline_api = helpers.resolve_headline_api(item.node)
 
       if headline_api then
-        headline_api:toggle_clock()
+        headline_api:toggle_clock():wait()
+
+        pcall(function()
+          picker.opts.hooks.after.toggle_clock(item, picker, "toggle_clock")
+        end)
       end
-    end, "mutation"),
+    end, "done"),
 
     cancel_active_clock = make_action(function(item)
       local headline_api = helpers.resolve_headline_api(item.node)
@@ -385,13 +394,16 @@ local picker = {
               })
               :next(function()
                 picker:close()
+                pcall(function()
+                  this_picker.opts.hooks.after.refile(item, this_picker, "refile")
+                end)
               end)
           end
         end,
       })
     end, "done"),
 
-    ---@param item VnixOrgTasksPickerItem
+    ---@param item SnacksOrgTasksPickerItem
     refile_to_headline = make_action(function(item, this_picker)
       local opts = this_picker.opts
 
@@ -414,6 +426,10 @@ local picker = {
                   :next(function()
                     pcall(function()
                       picker:close()
+
+                      pcall(function()
+                        this_picker.opts.hooks.after.refile(item, this_picker, "refile_to_headline")
+                      end)
                     end)
                   end)
               end
