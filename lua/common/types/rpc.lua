@@ -108,6 +108,11 @@
 ---@field type 'org'
 ---@field data 'files' | 'tasks'
 
+---@class UIMessageOrgResp :UIMessageRespBase
+---@field data UIMessageOrgRespData
+
+---@class UIMessageOrgRespData
+---@field sync_clock? boolean
 --------------------------------------------------------------------------------
 ---@class UIMessageProcsReq :UIMessageReqBase
 ---@field type 'procs'

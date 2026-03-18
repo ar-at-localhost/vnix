@@ -60,7 +60,7 @@ local procs_picker_opts = {
   text = "text",
   preview = "preview",
 
-  ---@param item VnixOrgTasksPickerItem
+  ---@param item SnacksOrgTasksPickerItem
   ---@param picker SnacksOrgTasksPicker
   format = function(item, picker)
     return {

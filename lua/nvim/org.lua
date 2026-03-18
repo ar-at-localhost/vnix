@@ -51,23 +51,29 @@ function M.setup()
       config.timers.status = timer
       timer:start(0, 50 * 1000, function()
         vim.schedule(function()
-          pcall(function()
-            local active, _, headline = helpers.get_active_clock()
-            if active and headline then
-              config.status = config.status or {}
-              config.status.task = {
-                title = headline:get_title(),
-                since = active.start_time.timestamp,
-                formatted = time.format_hhmm(time.now_unix() - (active.start_time.timestamp or 0)),
-              }
-
-              fs.write_json(string.format("%s/status.json", config.vnix_dir), config.status)
-            end
-          end)
+          M.sync_clock()
         end)
       end)
     end
   end
+end
+
+function M.sync_clock()
+  pcall(function()
+    config.status = config.status or {}
+    config.status.task = nil
+
+    local active, _, headline = helpers.get_active_clock()
+    if active and headline then
+      config.status.task = {
+        title = headline:get_title(),
+        since = active.start_time.timestamp,
+        formatted = time.format_hhmm(time.now_unix() - (active.start_time.timestamp or 0)),
+      }
+    end
+
+    fs.write_json(string.format("%s/status.json", config.vnix_dir), config.status)
+  end)
 end
 
 return M
