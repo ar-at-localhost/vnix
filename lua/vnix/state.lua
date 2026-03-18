@@ -383,10 +383,12 @@ function M.find_proc_by_tab_id(id)
     end
   end
 
-  for _, w in vnix.runtime.workspaces do
-    for i, v in ipairs(w.procs) do
-      if v.tab_id == id then
-        return v, i, w.procs, w
+  for _, w in ipairs(vnix.runtime.workspaces) do
+    if w.procs then
+      for i, v in ipairs(w.procs) do
+        if v.tab_id == id then
+          return v, i, w.procs, w
+        end
       end
     end
   end
@@ -396,8 +398,7 @@ end
 ---@param proc VnixProcRuntime
 ---@param tab MuxTab?
 ---@param workspace VnixWorkspaceRuntime?
----@param save? boolean
-function M.update_proc(proc, tab, workspace, save)
+function M.update_proc(proc, tab, workspace)
   if not workspace and proc.workspace ~= common.vnix_token then
     error("Invalid workspace!")
   end
@@ -418,10 +419,6 @@ function M.update_proc(proc, tab, workspace, save)
   end
 
   proc.last_updated = t.now_unix()
-
-  if save then
-    M.save()
-  end
 end
 
 function M.save()
