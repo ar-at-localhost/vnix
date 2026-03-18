@@ -47,32 +47,35 @@ events.make_event(
     -- Lock status refresh
     vnix.procs_last_refresh = t.now_unix()
 
-    pcall(function()
-      if subject.tab_id then
-        local tab = mux.find_tab(subject.tab_id)
-        if tab then
-          local proc_pane = tab:active_pane()
-          if pane then
-            wezterm.run_child_process({
-              "vnix-wezterm",
-              "kill-pane",
-              tostring(proc_pane:pane_id()),
-            })
-          end
+    ---@type MuxTab?
+    local tab
+
+    if subject.tab_id then
+      tab = mux.find_tab(subject.tab_id)
+      if tab then
+        local proc_pane = tab:active_pane()
+        if pane then
+          wezterm.run_child_process({
+            "vnix-wezterm",
+            "kill-pane",
+            tostring(proc_pane:pane_id()),
+          })
         end
       end
+    end
 
-      local _, tab = mux.create_tab({
+    _, tab = mux.create_tab({
+      name = subject.title,
+      pane = {
         name = subject.title,
-        pane = {
-          name = subject.title,
-          cwd = subject.cwd,
-          args = wezterm.shell_split(subject.cmd),
-        },
-      }, mux_win, subject.workspace, #mux_win:tabs())
+        cwd = subject.cwd,
+        args = wezterm.shell_split(subject.cmd),
+      },
+    }, mux_win, subject.workspace, #mux_win:tabs())
 
-      state.update_proc(subject, tab, state.find_workspace_by_name(workspace), true)
-    end)
+    if tab then
+      state.update_proc(subject, tab, state.find_workspace_by_name(workspace))
+    end
 
     -- Switch to vnix workspace for user interaction
     win:perform_action(
@@ -83,6 +86,7 @@ events.make_event(
     )
 
     win:perform_action(act.ActivateTab(0), pane)
+    wezterm.emit("vnix:procs-refresh", win, pane)
   end
 )
 
@@ -106,23 +110,21 @@ events.make_event(
     -- Lock status refresh
     vnix.procs_last_refresh = t.now_unix()
 
-    pcall(function()
-      if subject.tab_id then
-        local tab = mux.find_tab(subject.tab_id)
-        if tab then
-          local proc_pane = tab:active_pane()
-          if pane then
-            wezterm.run_child_process({
-              "vnix-wezterm",
-              "kill-pane",
-              tostring(proc_pane:pane_id()),
-            })
-          end
+    if subject.tab_id then
+      local tab = mux.find_tab(subject.tab_id)
+      if tab then
+        local proc_pane = tab:active_pane()
+        if pane then
+          wezterm.run_child_process({
+            "vnix-wezterm",
+            "kill-pane",
+            tostring(proc_pane:pane_id()),
+          })
         end
       end
-    end)
+    end
 
-    state.update_proc(subject, nil, state.find_workspace_by_name(workspace), true)
+    state.update_proc(subject, nil, state.find_workspace_by_name(workspace))
 
     -- Switch to vnix workspace for user interaction
     win:perform_action(
@@ -133,6 +135,7 @@ events.make_event(
     )
 
     win:perform_action(act.ActivateTab(0), pane)
+    wezterm.emit("vnix:procs-refresh", win, pane)
   end
 )
 
@@ -140,9 +143,8 @@ events.make_event(
   "vnix:procs-refresh",
   ---@param win Window
   ---@param pane Pane
-  ---@param subject VnixProcRuntime
   ---@diagnostic disable-next-line: unused-local
-  function(win, pane, subject)
+  function(win, pane)
     local proc_last_refresh = vnix.procs_last_refresh
 
     if proc_last_refresh then
@@ -155,18 +157,22 @@ events.make_event(
     end
 
     vnix.procs_last_refresh = t.now_unix()
-
-    local mux_win = mux.find_win(common.vnix_token)
-    if not mux_win then
-      error("Failed to acquire workspace!")
+    local workspaces = { common.vnix_token }
+    for _, w in ipairs(vnix.runtime.workspaces) do
+      table.insert(workspaces, w.name)
     end
 
-    local tabs = mux_win:tabs()
-    for _, tab in ipairs(tabs) do
-      if tab:get_title() ~= common.vnix_token then
-        local proc, _, _, workspace = state.find_proc_by_tab_id(tab:tab_id())
+    for _, workspace in ipairs(workspaces) do
+      local mux_win = mux.find_win(workspace)
+      if not mux_win then
+        error("Failed to acquire workspace!")
+      end
+
+      local tabs = mux_win:tabs()
+      for _, tab in ipairs(tabs) do
+        local proc, _, _, workspace_runtime = state.find_proc_by_tab_id(tab:tab_id())
         if proc then
-          state.update_proc(proc, tab, workspace, false)
+          state.update_proc(proc, tab, workspace_runtime)
         end
       end
     end

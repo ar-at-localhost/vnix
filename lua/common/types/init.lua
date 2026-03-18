@@ -20,8 +20,8 @@
 ---@field current_pane_index? number
 ---@field runtime VnixRuntime
 ---@field ui_next_req number
----@field ui_req UIMessageReqBase
----@field procs_last_refresh integer
+---@field ui_req UIMessageReqBase?
+---@field procs_last_refresh integer?
 ---@field debug? boolean
 ---@field _window_id? integer Temp save of GUI Window ID (Do not trust)
 ---@field palette? Palette

@@ -1,6 +1,5 @@
 local wezterm = require("wezterm")
 local common = require("common")
-local tbl = require("common.tbl")
 local mux = require("vnix.mux")
 local config = require("vnix.config")
 local state = require("vnix.state")
@@ -57,24 +56,28 @@ function M.restore(arg)
     },
   }
 
-  -- auto start procs which are enabled for autostart.
-  vnix.runtime.procs = arg.procs or {}
-  for _, proc in ipairs(vnix.runtime.procs) do
-    proc.id = string.format("%s/%s", vnix_id, proc.title):lower()
-    proc.status = "ready"
-    proc.workspace = vnix_id
+  pcall(function()
+    -- auto start procs which are enabled for autostart.
+    if arg.procs then
+      vnix.runtime.procs = arg.procs
+      for _, proc in ipairs(vnix.runtime.procs) do
+        proc.id = string.format("%s/%s", vnix_id, proc.title):lower()
+        proc.status = "ready"
+        proc.workspace = vnix_id
 
-    if proc.autostart then
-      table.insert(vnix_workspace.tabs, {
-        name = proc.title,
-        pane = {
-          name = proc.title,
-          cwd = proc.cwd,
-          args = wezterm.shell_split(proc.cmd),
-        },
-      })
+        if proc.autostart then
+          table.insert(vnix_workspace.tabs, {
+            name = proc.title,
+            pane = {
+              name = proc.title,
+              cwd = proc.cwd,
+              args = wezterm.shell_split(proc.cmd),
+            },
+          })
+        end
+      end
     end
-  end
+  end)
 
   local vnix_workspace_state, win = mux.create_workspace(vnix_workspace)
   vnix.nvim = vnix_workspace_state.tabs[1]

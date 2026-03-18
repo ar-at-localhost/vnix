@@ -15,6 +15,7 @@ local resp = require("nvim.resp")
 ---@field status string
 ---@field status_formatted string
 ---@field preview unknown?
+---@field last_updated number
 ---@field last_updated_formatted string
 
 local icons = {
@@ -99,7 +100,7 @@ local procs_picker_opts = {
         text = v.title,
         status = v.status,
         status_formatted = status_formatted,
-        last_updated = v.last_updated or 0,
+        last_updated = v.last_updated,
         last_updated_formatted = last_updated_formatted,
         preview = {
           ft = "markdown",
@@ -116,7 +117,7 @@ local procs_picker_opts = {
 ```
 ]],
             v.title,
-            "Vnix",
+            v.workspace,
             status_formatted,
             last_updated_formatted,
             v.preview and (v.scrollback or "") or ""

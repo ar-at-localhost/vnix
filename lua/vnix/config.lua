@@ -82,15 +82,15 @@ function M.load()
       end
     end
 
-    if not w.procs or type(w.procs) ~= "table" or not w.procs[1] then
-      w.procs = {}
-    end
-
-    for _, p in ipairs(w.procs) do
-      ---@cast p VnixProcRuntime
-      p.workspace = w.name
-      p.status = "ready"
-    end
+    pcall(function()
+      if w.procs then
+        for _, p in ipairs(w.procs) do
+          ---@cast p VnixProcRuntime
+          p.workspace = w.name
+          p.status = "ready"
+        end
+      end
+    end)
   end
 
   return specs
