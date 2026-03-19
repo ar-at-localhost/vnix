@@ -32,12 +32,32 @@
   ],
   "workspaces": [
     {
-      "name": "vnix",
+      "name": "vnix-test",
+      "lazy": true,
       "tabs": [
         {
           "name": "Home",
           "pane": {
             "name": "Home"
+          }
+        },
+        {
+          "name": "Home",
+          "lazy": true,
+          "pane": {
+            "name": "Home Lazy"
+          }
+        }
+      ]
+    },
+    {
+      "name": "vnix-lazy",
+      "lazy": true,
+      "tabs": [
+        {
+          "name": "Vnix Lazy",
+          "pane": {
+            "name": "Vnix Lazy"
           }
         }
       ]

@@ -3,17 +3,20 @@ local resp = require("nvim.resp")
 
 ---@type snacks.picker.Config
 local common = {
+  ---@param item {id: number | string, value: VnixPaneFlat}
   confirm = function(self, item)
     local kind = self.opts.source
-    resp.write(resp.create_from_req(
-      nil,
-      ---@type UIMessageSwitchRespData
-      {
-        kind = kind,
-        id = item.value,
-      }
-    ))
+    ---@cast kind 'workspace' | 'tab' | 'pane'
 
+    ---@type UIMessageSWitchRespData
+    local data = {
+      workspace = item.value.workspace,
+      tab = item.value.tab_name,
+      pane = item.value.pane_name,
+      ctx = kind,
+    }
+
+    resp.write(resp.create_from_req(nil, data))
     self:close()
   end,
 

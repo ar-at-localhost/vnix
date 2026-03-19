@@ -1,4 +1,5 @@
 local wezterm = require("wezterm")
+local common = require("common")
 local state = require("vnix.state")
 local activity = require("vnix.activity")
 local mux = require("vnix.mux")
@@ -13,36 +14,37 @@ end
 ---Workspace navigation
 ---@param win Window
 ---@param pane Pane
----@param offset_or_idx? integer Provide +1/-1 or exact index (except 1 - which will be taken as `offset`)
-local function switch_workspace(win, pane, offset_or_idx)
-  local fallback_offset = 0
-  local fallback = function()
-    win:perform_action(wezterm.action.SwitchWorkspaceRelative(fallback_offset), pane)
-    wezterm.emit("vnix:state-update", win, "effective")
+---@param offset? integer
+local function switch_workspace(win, pane, offset)
+  local active_pane = vnix.runtime.active_pane
+
+  if not active_pane then
+    return
   end
 
-  local target_idx = offset_or_idx
-  fallback_offset = 0
+  local current_workspace, idx = state.find_workspace_by_name(active_pane.workspace)
+  if not current_workspace or not idx then
+    return
+  end
 
-  if target_idx == 0 then
-    target_idx = 1
-  elseif target_idx == 1 or target_idx == -1 then
-    fallback_offset = offset_or_idx or 1
-    local current = win:active_workspace()
-    local current_workspace, idx = state.find_workspace_by_name(current)
+  local target = nil
+  while true do
+    local total_workspaces = #vnix.runtime.workspaces
+    idx = ((idx - 1 + offset) % total_workspaces) + 1
+    local candidate = vnix.runtime.workspaces[idx]
 
-    if not current_workspace or not idx then
-      fallback()
-      return
+    if not candidate or candidate.id == current_workspace.id then
+      -- wrapped around, no valid workspace found
+      break
     end
 
-    local total_workspaces = #vnix.runtime.workspaces
-    target_idx = ((idx - 1 + offset_or_idx) % total_workspaces) + 1
+    if not candidate.lazy or candidate.lazy_loaded then
+      target = candidate
+      break
+    end
   end
 
-  local target = vnix.runtime.workspaces[target_idx]
   if not target then
-    fallback()
     return
   end
 
@@ -73,14 +75,30 @@ local function switch_tab(win, pane, offset_or_idx)
   elseif active_pane then
     local workspace = state.find_workspace_by_name(active_pane.workspace)
     if workspace then
-      local _, tab_idx = state.find_tab_by_id(workspace, active_pane.tab_id)
-      local idx = (((tab_idx - 1) + offset_or_idx) % #workspace.tabs) + 1
-      local target_tab = workspace.tabs[idx]
+      local active_tab, tab_idx = state.find_tab_by_id(workspace, active_pane.tab_id)
 
-      if target_tab then
-        local _, i = mux.find_tab(target_tab.id)
-        if i then
-          index = i
+      if active_tab and tab_idx then
+        ---@type VnixTabRuntime?
+        local target_tab
+        while true do
+          tab_idx = (((tab_idx - 1) + offset_or_idx) % #workspace.tabs) + 1
+          local candidate = workspace.tabs[tab_idx]
+          if not candidate or candidate.id == active_tab.id then
+            -- wrapped around, no valid tab found
+            break
+          end
+          if not candidate.lazy or candidate.lazy_loaded then
+            target_tab = candidate
+            break
+          end
+          -- lazy and not loaded: skip, continue iterating
+        end
+
+        if target_tab then
+          local _, i = mux.find_tab(target_tab.id)
+          if i then
+            index = i
+          end
         end
       end
     end
@@ -134,9 +152,11 @@ wezterm.on("vnix:nav-workspace-prev", function(win, pane)
 end)
 
 wezterm.on("vnix:nav-workspace-first", function(win, pane)
-  switch_workspace(win, pane, 0)
+  -- TODO: Restore
+  -- switch_workspace(win, pane, 0)
 end)
 
 wezterm.on("vnix:nav-workspace-last", function(win, pane)
-  switch_workspace(win, pane, #vnix.runtime.workspaces)
+  -- TODO: Restore
+  -- switch_workspace(win, pane, #vnix.runtime.workspaces)
 end)

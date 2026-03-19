@@ -3,15 +3,24 @@ local mux = wezterm.mux
 local tbl = require("common.tbl")
 
 ---@class VnixMuxMod
----@field create_workspace fun(arg: VnixWorkspace): VnixWorkspaceRuntime, MuxWindow  Create a workspace
 ---@field _split_pane fun(arg: VnixPaneRuntime, pane: Pane): VnixPaneRuntime Split an exisitng pane (recursive)
 ---@field split_pane fun(arg: VnixPaneRuntime, dir: 'Right' | 'Bottom', pane: Pane): VnixPaneRuntime, Pane Split a pane
----@field await_gui_window fun(win: MuxWindow, cb: fun(win: Window), _attempt?: number, _switch_requested?: boolean) Wait for gui window to be attached
 ---@field normalize_args fun(args: string | string[] | nil): { paste?: string, args: string[] | nil}
 local M = {} ---@type VnixMuxMod
 
-function M.create_workspace(arg)
+---@param arg VnixWorkspace
+---@param force? boolean forcefully create workspace (ignoring lazy)
+---@param lazy_index integer? A number to generate tab ID's when they're lazy
+---@return VnixWorkspaceRuntime
+---@return MuxWindow?
+function M.create_workspace(arg, force, lazy_index)
   local copy = tbl.deep_copy(arg) ---@type VnixWorkspaceRuntime
+  copy.id = copy.name
+
+  if arg.lazy and not force then
+    return copy, nil
+  end
+
   local first_tab = arg.tabs[1]
 
   if not first_tab then
@@ -52,11 +61,10 @@ function M.create_workspace(arg)
   copy.tabs[1].pane.tab_idx = copy.tabs[1].idx
   copy.tabs[1].id = copy.tabs[1].pane.tab_id
   copy.tabs[1].pane = M._split_pane(copy.tabs[1].pane, pane)
-  copy.id = win:get_workspace() or arg.name
 
   for i = 2, #arg.tabs do
     copy.tabs[i].cwd = copy.tabs[i].cwd or copy.cwd
-    copy.tabs[i] = M.create_tab(arg.tabs[i], win, copy.id, i - 1)
+    copy.tabs[i] = M.create_tab(arg.tabs[i], win, i - 1, lazy_index or 1)
     copy.tabs[i].idx = i
   end
 
@@ -66,11 +74,18 @@ end
 ---VnixTabState Create a new tab
 ---@param arg VnixTab
 ---@param win string | MuxWindow
----@param workspace string
 ---@param idx integer
+---@param lazy_index? integer If specified, and tab's is lazy; then it is used to calculate fallback id. If omitted, will forcefully attempt to create tab (regardless of lazy)
 ---@return VnixTabRuntime state
----@return MuxTab mux_tab
-function M.create_tab(arg, win, workspace, idx)
+---@return MuxTab? mux_tab
+---@return MuxWindow? mux_win
+function M.create_tab(arg, win, idx, lazy_index)
+  local copy = tbl.deep_copy(arg) ---@type VnixTabRuntime
+  if arg.lazy and lazy_index then
+    copy.id = (lazy_index * 1000) + idx
+    return copy
+  end
+
   idx = idx or 0
   local first_pane = arg.pane
 
@@ -112,17 +127,16 @@ function M.create_tab(arg, win, workspace, idx)
     pane:send_paste(arg_opts.paste)
   end
 
-  local copy = tbl.deep_copy(arg) ---@type VnixTabRuntime
   copy.id = tab:tab_id()
   copy.pane.name = arg.pane.name
   copy.pane.id = pane:pane_id()
   copy.pane.tab = copy.name
   copy.pane.tab_id = copy.id
   copy.pane.tab_idx = idx
-  copy.pane.workspace = workspace
+  copy.pane.workspace = window:get_workspace() or ""
   copy.pane.cwd = copy.pane.cwd or copy.cwd
   copy.pane = M._split_pane(copy.pane, pane)
-  return copy, tab
+  return copy, tab, window
 end
 
 function M.split_pane(arg, dir, pane)
@@ -182,6 +196,10 @@ function M._split_pane(arg, pane)
   return copy
 end
 
+---Wait for gui window to be attached
+---@param win MuxWindow
+---@param func fun(win: Window)
+---@param _attempts? integer
 function M.await_gui_window(win, func, _attempts)
   _attempts = _attempts or 0
   if _attempts > 60 then

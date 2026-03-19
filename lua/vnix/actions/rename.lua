@@ -132,7 +132,7 @@ events.make_event(
       M.rename_pane(win, pane, active_pane.id, data.name, all)
     end
 
-    wezterm.emit("vnix:switch-to", active_pane.id)
+    wezterm.emit("vnix:switch-to-last-active-pane", win)
 
     if all then
       -- FIXME: It should've been operation limited to new workspace (`init` would do everything)

@@ -71,7 +71,7 @@ events.make_event(
         cwd = subject.cwd,
         args = wezterm.shell_split(subject.cmd),
       },
-    }, mux_win, subject.workspace, #mux_win:tabs())
+    }, mux_win, #mux_win:tabs())
 
     if tab then
       state.update_proc(subject, tab, state.find_workspace_by_name(workspace))

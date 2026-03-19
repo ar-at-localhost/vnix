@@ -81,15 +81,13 @@
 
 ---@class UIMessageSwitchResp :UIMessageRespBase
 ---@field type 'switch'
----@field data? UIMessageSwitchRespWorkspaceData | UIMessageSwitchRespData
+---@field data UIMessageSWitchRespData
 
----@class UIMessageSwitchRespWorkspaceData
----@field kind 'workspace'
----@field id string
----
----@class UIMessageSwitchRespData
----@field kind 'tab' | 'pane'
----@field id number
+---@class UIMessageSWitchRespData
+---@field workspace string
+---@field tab string
+---@field pane string
+---@field ctx? 'pane' | 'tab' | 'workspace'
 
 ---@class UIMessagePersistReq :UIMessageReqBase
 ---@field type 'persist'

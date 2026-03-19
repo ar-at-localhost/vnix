@@ -1,5 +1,4 @@
 local wezterm = require("wezterm")
-local tbl = require("common.tbl")
 local specials = require("vnix.keys.specials")
 local act = wezterm.action
 
