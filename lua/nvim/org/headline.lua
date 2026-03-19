@@ -13,10 +13,10 @@ function OrgApiHeadline:set_todo(keyword)
 end
 
 ---@class OrgApiHeadline
----@field clock_in fun(self: OrgApiHeadline)
+---@field clock_in fun(self: OrgApiHeadline): OrgPromise
 function OrgApiHeadline:clock_in()
   ---@diagnostic disable-next-line: invisible
-  self:_do_action(function()
+  return self:_do_action(function()
     local headline = org.files:get_closest_headline()
 
     if headline:is_clocked_in() then
@@ -28,10 +28,10 @@ function OrgApiHeadline:clock_in()
 end
 
 ---@class OrgApiHeadline
----@field clock_out fun(self: OrgApiHeadline)
+---@field clock_out fun(self: OrgApiHeadline): OrgPromise
 function OrgApiHeadline:clock_out()
   ---@diagnostic disable-next-line: invisible
-  self:_do_action(function()
+  return self:_do_action(function()
     local headline = org.files:get_closest_headline()
 
     if not headline:is_clocked_in() then
@@ -43,13 +43,19 @@ function OrgApiHeadline:clock_out()
 end
 
 ---@class OrgApiHeadline
----@field is_clocked_in fun(self: OrgApiHeadline)
+---@field is_clocked_in fun(self: OrgApiHeadline): OrgPromise
 function OrgApiHeadline:is_clocked_in()
-  ---@diagnostic disable-next-line: invisible
-  self:_do_action(function()
-    local headline = org.files:get_closest_headline()
-    return headline:is_clocked_in()
-  end)
+  local clock_in
+
+  return self
+    ---@diagnostic disable-next-line: invisible
+    :_do_action(function()
+      local headline = org.files:get_closest_headline()
+      clock_in = headline:is_clocked_in()
+    end)
+    :next(function()
+      return clock_in
+    end)
 end
 
 ---@class OrgApiHeadline

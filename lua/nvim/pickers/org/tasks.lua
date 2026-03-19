@@ -135,7 +135,7 @@ local function make_action(cb, kind)
       return picker:find()
     elseif kind == "mutation" then
       return picker:refresh()
-    else
+    elseif kind == "done" then
       picker:close()
     end
   end
@@ -361,13 +361,25 @@ local picker = {
       local headline_api = helpers.resolve_headline_api(item.node)
 
       if headline_api then
-        headline_api:toggle_clock():wait()
+        headline_api
+          :is_clocked_in()
+          :next(function(clocked_in)
+            if clocked_in then
+              return headline_api:clock_out()
+            end
 
-        pcall(function()
-          picker.opts.hooks.after.toggle_clock(item, picker, "toggle_clock")
-        end)
+            return headline_api:clock_in()
+          end)
+          :next(function()
+            pcall(function()
+              picker.opts.hooks.after.toggle_clock(item, picker, "toggle_clock")
+            end)
+          end)
+          :catch(function(err)
+            vim.notify(vim.inspect(err), vim.log.levels.WARN)
+          end)
       end
-    end, "done"),
+    end),
 
     cancel_active_clock = make_action(function(item)
       local headline_api = helpers.resolve_headline_api(item.node)
