@@ -1,6 +1,8 @@
 local config = require("nvim.config")
 local org = require("nvim.org")
 local resp = require("nvim.resp")
+local helpers = require("nvim.org.helpers")
+local dashboard = require("nvim.dashboard")
 local M = {}
 
 local function get_org_dir()
@@ -15,22 +17,28 @@ end
 ---@param arg UIMessageOrgReq
 ---@diagnostic disable-next-line: unused-local
 function M.handle(arg)
-  ---@param _ SnacksOrgTasksPickerItem
+  ---@param item SnacksOrgTasksPickerItem
   ---@param picker snacks.Picker
   ---@param action SnacksOrgTasksPickerAction
-  local function hook(_, picker, action)
+  local function hook(item, picker, action)
     ---@type UIMessageOrgRespData
     local data = {}
 
     if action == "toggle_clock" then
+      pcall(function()
+        picker:close()
+      end)
+
       org.sync_clock()
       data.sync_clock = true
-      resp.write(resp.create_from_req(arg, data), true)
-    end
+      resp.write(resp.create_from_req(arg, data), false)
 
-    pcall(function()
-      picker:close()
-    end)
+      if item.node then
+        helpers.clock_out_all(item.node):next(dashboard):catch(function() end)
+      else
+        dashboard()
+      end
+    end
   end
 
   ---@type SnacksOrgTasksPickerConfig

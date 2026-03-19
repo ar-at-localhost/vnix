@@ -1,4 +1,5 @@
 local orgmode = require("orgmode")
+local Promise = require("orgmode.utils.promise")
 local api = require("orgmode.api")
 ---@class VnixOrgHeadline
 local M = {} ---@type VnixOrgHeadline
@@ -83,6 +84,38 @@ function M.get_active_clock()
       return log_book:get_active(), log_book, headline
     end
   end
+end
+
+---@param keep OrgHeadline? Keep this headline clocked in
+function M.clock_out_all(keep)
+  return Promise.resolve():next(function()
+    local chain = Promise.resolve()
+
+    for _, f in pairs(orgmode.files.files) do
+      ---@cast f OrgFile
+      local headlines = f:get_headlines()
+
+      for _, h in ipairs(headlines) do
+        local ha = M.resolve_headline_api(h)
+        if ha and not M.is_same_headline(h, keep) then
+          chain = chain:next(function()
+            return ha:clock_out()
+          end)
+        end
+      end
+    end
+
+    return chain
+  end)
+end
+
+---@param a OrgHeadline?
+---@param b OrgHeadline?
+function M.is_same_headline(a, b)
+  return a
+    and b
+    and a.file.filename == b.file.filename
+    and a:get_range().start_line == b:get_range().start_line
 end
 
 ---@param priority string
