@@ -2,11 +2,13 @@
 ---@field id string
 ---@field tabs VnixTabRuntime[]
 ---@field procs VnixProcRuntime[]
+---@field lazy_loaded boolean?
 
 ---@class VnixTabRuntime: VnixTab
 ---@field id number wezterm id
 ---@field idx number 0 based index
 ---@field pane VnixPaneRuntime root pane
+---@field lazy_loaded boolean?
 
 ---@class VnixPaneRuntime: VnixPane
 ---@field right? VnixPaneRuntime

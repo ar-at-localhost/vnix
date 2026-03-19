@@ -1,5 +1,6 @@
 local wezterm = require("wezterm")
 local common = require("common")
+local switch_actions = require("vnix.actions.switch")
 local mux = require("vnix.mux")
 local config = require("vnix.config")
 local state = require("vnix.state")
@@ -82,53 +83,25 @@ function M.restore(arg)
   local vnix_workspace_state, win = mux.create_workspace(vnix_workspace)
   vnix.nvim = vnix_workspace_state.tabs[1]
 
-  -- Update running proc's status
-  do
-    local tabs = win:tabs()
-    for _, tab in ipairs(tabs) do
-      local ok, err = pcall(function()
-        local id = string.format("%s/%s", vnix_id, tab:get_title()):lower()
-        for _, proc in ipairs(vnix.runtime.procs) do
-          if proc.id == id then
-            proc.tab_id = tab:tab_id()
-            local pane = tab:active_pane()
+  if win then
+    mux.await_gui_window(win, function(gui_window)
+      vnix._window_id = gui_window:window_id()
+      gui_window:maximize()
+      local cfg = gui_window:effective_config()
+      if cfg then
+        vnix.palette = cfg.resolved_palette
+      end
 
-            if pane then
-              proc.status = "running"
+      local workspaces = {}
+      for wi, w in ipairs(arg.workspaces) do
+        local workspace = mux.create_workspace(w, false, wi)
+        table.insert(workspaces, workspace)
+      end
 
-              if proc.preview then
-                proc.scrollback = pane:get_lines_as_escapes()
-              end
-            else
-              proc.status = "stopped"
-            end
-
-            break
-          end
-        end
-      end)
-
-      print(ok, err)
-    end
+      vnix.runtime.workspaces = workspaces
+      M._notify()
+    end)
   end
-
-  mux.await_gui_window(win, function(gui_window)
-    vnix._window_id = gui_window:window_id()
-    gui_window:maximize()
-    local cfg = gui_window:effective_config()
-    if cfg then
-      vnix.palette = cfg.resolved_palette
-    end
-
-    local workspaces = {}
-    for _, w in ipairs(arg.workspaces) do
-      local workspace = mux.create_workspace(w)
-      table.insert(workspaces, workspace)
-    end
-
-    vnix.runtime.workspaces = workspaces
-    M._notify()
-  end)
 end
 
 function M._notify()
@@ -137,49 +110,24 @@ function M._notify()
     return
   end
 
-  local id = nil
+  local gui_win = mux.resolve_gui_window(common.vnix_token)
+  local pane = nil
 
   --- Lookup last known pane and switch to it
   if vnix.runtime and vnix.runtime.active_pane then
     local ap = vnix.runtime.active_pane
     if ap then
-      local pane = state.find_pane_by_names(ap.workspace, ap.tab, ap.name)
-      if pane then
-        id = pane.id
-      end
+      pane = state.find_pane_by_names(ap.workspace, ap.tab, ap.name)
     end
   end
 
-  local pane = state.find_pane_by_id(id, function(_, _, workspace)
-    return workspace.name ~= "__vnix__"
-  end)
+  if gui_win then
+    switch_actions.switch_to_pane_action(gui_win, pane)
+  end
 
-  if pane then
-    local gui_win = nil ---@type Window
-    for _, w in ipairs(wezterm.gui.gui_windows()) do
-      if w:is_focused() then
-        gui_win = w
-        break
-      end
-    end
-
-    if gui_win then
-      gui_win:perform_action(
-        wezterm.action.SwitchToWorkspace({
-          name = pane.workspace,
-        }),
-        gui_win:active_pane()
-      )
-
-      local pane_obj = mux.find_pane(pane.id)
-      if pane_obj then
-        pane_obj:activate()
-      end
-
-      wezterm.time.call_after(0, function()
-        wezterm.emit("vnix:state-update", gui_win, "init")
-      end)
-    end
+  wezterm.emit("vnix:state-update", gui_win, "init")
+  if gui_win then
+    wezterm.emit("vnix:procs-refresh", gui_win, gui_win:active_pane())
   end
 end
 

@@ -33,9 +33,6 @@ function M.dispatch(win, pane, args)
   -- Store current pane index for potential return navigation
   ---@diagnostic disable-next-line: unused-local
   local active_pane = vnix.runtime.active_pane
-  if not active_pane then
-    return
-  end
 
   -- Prepare action data
   ---@type UIMessageReqBase?
@@ -44,7 +41,7 @@ function M.dispatch(win, pane, args)
   if action_data then
     action_data.id = vnix.ui_next_req
     action_data.timestamp = time.iso_timestamp()
-    action_data.return_to = active_pane.id or 1
+    action_data.return_to = active_pane and action_data.id or 0
     vnix.ui_next_req = vnix.ui_next_req + 1
 
     wezterm.emit("vnix:ui-req", action_data)
@@ -109,12 +106,15 @@ function M.parse(win, pane, data)
   if parsed.type == "switch" then
     ---@cast parsed UIMessageSwitchResp
 
-    if parsed.data and parsed.data.kind == "tab" then
-      return wezterm.emit("vnix:switch-to-tab", parsed.data.id)
-    elseif parsed.data and parsed.data.kind == "workspace" then
-      return wezterm.emit("vnix:switch-to-workspace", parsed.data.id)
-    else
-      return wezterm.emit("vnix:switch-to", parsed.data.id)
+    if parsed.data then
+      return wezterm.emit(
+        "vnix:switch-by-names",
+        win,
+        parsed.data.workspace,
+        parsed.data.tab,
+        parsed.data.pane,
+        parsed.data.ctx
+      )
     end
   end
 
@@ -125,14 +125,14 @@ function M.parse(win, pane, data)
       wezterm.emit("vnix:sync-status")
     end
 
-    wezterm.emit("vnix:switch-to", parsed.return_to)
+    wezterm.emit("vnix:switch-to-last-active-pane", win)
   end
 
   --- Procs messages
   if parsed.type == "procs" then
     ---@cast parsed UIMessageProcsResp
     if not parsed.data or not parsed.data.action or parsed.data.action == "close" then
-      return wezterm.emit("vnix:switch-to")
+      return wezterm.emit("vnix:switch-to-last-active-pane", win)
     elseif parsed.data and parsed.data.action == "run" then
       wezterm.emit("vnix:proc-run", win, pane, parsed.data.subject)
     elseif parsed.data and parsed.data.action == "stop" then

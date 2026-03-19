@@ -142,11 +142,18 @@ end
 
 function _M.reset_flat_state()
   local out = {} ---@type VnixPanesFlat
+  local counter = 10000
 
   state.traverse_all_panes(function(pane, tab, workspace)
+    counter = counter + 1
+
     ---@type VnixPaneFlat
     local entry = {
-      pane_id = pane.id,
+      pane_id = (
+        (workspace.lazy and not workspace.lazy_loaded) or (tab.lazy and not tab.lazy_loaded)
+      )
+          and counter
+        or pane.id,
       pane_idx = pane.idx,
       pane_name = pane.name,
       tab_id = tab.id,

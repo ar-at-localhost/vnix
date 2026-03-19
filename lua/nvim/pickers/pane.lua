@@ -38,7 +38,8 @@ local function to_item(id, pane)
         pane.pane_name
       ),
     },
-    value = pane.pane_id,
+
+    value = pane,
   }
 
   return item

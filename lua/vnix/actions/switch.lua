@@ -1,11 +1,94 @@
 local wezterm = require("wezterm")
-local vnix_mux = require("vnix.mux")
 local rpc = require("vnix.rpc")
 local events = require("vnix.events")
 local state = require("vnix.state")
 
 ---@type VNixGlobal
 local vnix = wezterm.GLOBAL.vnix
+
+---@class VnixSwitchActionsMod
+local M = {} ---@type VnixSwitchActionsMod
+
+---@param win Window
+---@param workspace string
+function M.switch_to_workspace_action(win, workspace)
+  win:perform_action(
+    wezterm.action.SwitchToWorkspace({
+      name = workspace,
+    }),
+    win:active_pane()
+  )
+end
+
+---@param win Window
+---@param workspace string
+---@param tab_idx number 0-based
+function M.switch_to_tab_action(win, workspace, tab_idx)
+  if not workspace or not tab_idx then
+    return
+  end
+
+  M.switch_to_workspace_action(win, workspace)
+  win:perform_action(wezterm.action.ActivateTab(tab_idx), win:active_pane())
+end
+
+---@param win Window
+---@param pane VnixPaneRuntime?
+function M.switch_to_pane_action(win, pane)
+  pane = pane or vnix.nvim and vnix.nvim.pane
+
+  if not pane then
+    return
+  end
+
+  local idx = pane.idx
+  M.switch_to_tab_action(win, pane.workspace, pane.tab_idx)
+  win:perform_action(wezterm.action.ActivatePaneByIndex(idx), win:active_pane())
+  vnix.runtime.active_pane = pane
+end
+
+---@param win Window
+---@param workspace VnixWorkspaceRuntime
+---@param workspace_idx integer
+function M.switch_to_workspace(win, workspace, workspace_idx)
+  local pane
+
+  if workspace.lazy and not workspace.lazy_loaded then
+    ---@diagnostic disable-next-line: cast-type-mismatch
+    workspace = state.load_workspace(win, workspace, workspace_idx)
+    pane = workspace.tabs[1].pane
+    pane.idx = 0
+  else
+    pane = vnix.runtime.focus[workspace.name] or workspace.tabs[1].pane
+  end
+
+  if pane then
+    M.switch_to_pane_action(win, pane)
+  end
+end
+
+---@param win Window
+---@param workspace VnixWorkspaceRuntime
+---@param tab VnixTabRuntime
+---@param tab_idx integer
+function M.switch_to_tab(win, workspace, tab, tab_idx)
+  ---@type VnixPaneRuntime
+  local pane
+
+  if tab and tab_idx then
+    if tab.lazy and not tab.lazy_loaded then
+      tab = state.load_tab(win, workspace.name, tab, tab_idx)
+      pane = tab.pane
+      pane.idx = 0
+    else
+      pane = vnix.runtime.focus[workspace.name .. "." .. tab.name] or tab.pane
+    end
+
+    if pane then
+      M.switch_to_pane_action(win, pane)
+    end
+  end
+end
 
 wezterm.on("vnix:switch", function(win, pane)
   -- Validate input parameters
@@ -22,90 +105,49 @@ wezterm.on("vnix:switch", function(win, pane)
 end)
 
 events.make_event(
-  "vnix:switch-to-workspace",
-  ---@param workspace string
-  function(workspace)
-    local w = state.find_workspace_by_name(workspace)
-
-    local pane = vnix.runtime.active_pane
-
-    if w then
-      pane = vnix.runtime.focus[w.name] or w.tabs[1].pane
+  "vnix:switch-to-pane",
+  ---@param win Window
+  ---@param id integer
+  ---@param force? boolean
+  function(win, id, force)
+    local pane = state.find_pane_by_id(id)
+    if pane or force then
+      M.switch_to_pane_action(win, pane)
     end
-
-    wezterm.emit("vnix:switch-to", pane and pane.id or nil)
   end
 )
 
 events.make_event(
-  "vnix:switch-to-tab",
-  ---@param tab_id number
-  function(tab_id)
-    local pane = vnix.runtime.active_pane
-
-    if pane then
-      local workspace = state.find_workspace_by_name(pane.workspace)
-      if workspace then
-        local tab = state.find_tab_by_id(workspace, tab_id)
-        if tab then
-          pane = vnix.runtime.focus[workspace.name .. "." .. tab.name] or tab.pane
-        end
-      end
-    end
-
-    wezterm.emit("vnix:switch-to", pane and pane.id or nil)
+  "vnix:switch-to-last-active-pane",
+  ---@param win Window
+  function(win)
+    M.switch_to_pane_action(win, vnix.runtime.active_pane)
   end
 )
 
-wezterm.on(
-  "vnix:switch-to",
-  ---cb
-  ---@param id? number
-  ---@param cb? fun(ok: boolean, win?: Window, err?: string)
-  function(id, cb)
-    local ok, err = pcall(function()
-      local pane, tab, tab_idx, workspace = state.find_pane_by_id(id)
+events.make_event(
+  "vnix:switch-by-names",
+  ---@param win Window
+  ---@param workspace_name string
+  ---@param tab_name string
+  ---@param pane_name string
+  ---@param ctx? 'pane' | 'tab' | 'workspace'
+  function(win, workspace_name, tab_name, pane_name, ctx)
+    local pane, _, tab, ti, workspace, wi =
+      state.find_pane_by_names(workspace_name, tab_name, pane_name)
 
-      if pane and tab and workspace then
-        local gui_window = vnix_mux.resolve_gui_window()
-        if not gui_window then
-          error("Unable to acquire GUI Window.")
-        end
-
-        local active_pane = gui_window:active_pane()
-        if not active_pane then
-          error("Unable to acquire active pane.")
-          return
-        end
-
-        gui_window:perform_action(
-          wezterm.action.SwitchToWorkspace({
-            name = workspace.name,
-          }),
-          active_pane
-        )
-
-        gui_window:perform_action(wezterm.action.ActivateTab(tab_idx - 1), active_pane)
-        gui_window:perform_action(wezterm.action.ActivatePaneByIndex(pane.idx or 0), active_pane)
-
-        wezterm.time.call_after(0, function()
-          if cb then
-            cb(true, gui_window)
-          else
-            wezterm.emit("vnix:state-update", gui_window, "effective")
-          end
-        end)
-      else
-        if cb then
-          cb(false, nil, "Unable to find pane!")
-        else
-          error("Unable to find pane!")
-        end
-      end
-    end)
-
-    if not ok then
-      wezterm.log_error("(vnix:switch-to)", err)
+    if not pane or not tab or not ti or not workspace or not wi then
+      error("No such pane.")
     end
+
+    if ctx == "workspace" or (workspace.lazy and not workspace.lazy_loaded) then
+      return M.switch_to_workspace(win, workspace, wi)
+    elseif ctx == "tab" or (tab.lazy and not tab.lazy_loaded) then
+      return M.switch_to_tab(win, workspace, tab, ti)
+    end
+
+    M.switch_to_pane_action(win, pane)
   end
 )
+
+return M

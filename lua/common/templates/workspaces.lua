@@ -92,6 +92,7 @@ M.dev = {
         -- Term Tab
         {
           name = "Term",
+          lazy = true,
           pane = {
             name = "Term",
             meta = {
@@ -104,6 +105,7 @@ M.dev = {
         -- -- Left Split
         {
           name = "VSplit",
+          lazy = true,
           pane = {
             name = "Left",
             meta = {
@@ -123,6 +125,7 @@ M.dev = {
         -- -- Top Split
         {
           name = "HSplit",
+          lazy = true,
           pane = {
             name = "Top",
             meta = {
@@ -141,6 +144,7 @@ M.dev = {
         -- Grid Tab
         {
           name = "Grid",
+          lazy = true,
           pane = {
             name = "Left",
             meta = { layout = "dev" },
