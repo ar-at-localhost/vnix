@@ -80,7 +80,22 @@ function M.restore(arg)
     end
   end)
 
-  local vnix_workspace_state, win = mux.create_workspace(vnix_workspace)
+  local position = {
+    origin = "ActiveScreen",
+    x = 0,
+    y = 0,
+    width = 1000,
+    height = 1000,
+  }
+
+  pcall(function()
+    local screens = wezterm.gui.screens()
+    local screen = screens and screens.active
+    position.width = screen.width
+    position.height = screen.height
+  end)
+
+  local vnix_workspace_state, win = mux.create_workspace(vnix_workspace, nil, nil, position)
   vnix.nvim = vnix_workspace_state.tabs[1]
 
   if win then

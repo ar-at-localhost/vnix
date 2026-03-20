@@ -11,9 +11,10 @@ local M = {} ---@type VnixMuxMod
 ---@param arg VnixWorkspace
 ---@param force? boolean forcefully create workspace (ignoring lazy)
 ---@param lazy_index integer? A number to generate tab ID's when they're lazy
+---@param position? SpawnPosition
 ---@return VnixWorkspaceRuntime
 ---@return MuxWindow?
-function M.create_workspace(arg, force, lazy_index)
+function M.create_workspace(arg, force, lazy_index, position)
   local copy = tbl.deep_copy(arg) ---@type VnixWorkspaceRuntime
   copy.id = copy.name
 
@@ -40,6 +41,7 @@ function M.create_workspace(arg, force, lazy_index)
       first_tab.env or {},
       first_pane.env or {}
     ),
+    position = position,
   })
 
   if not tab or not pane or not win then
