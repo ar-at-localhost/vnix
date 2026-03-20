@@ -29,8 +29,8 @@ local M = vim.tbl_extend(
           table.insert(items, {
             id = i.tab_id,
             name = i.tab_name,
-            text = i.tab_name,
-            value = i.tab_id,
+            text = string.format("%s %s", switch.lazy_statuses[i.lazy_status], i.tab_name),
+            value = i,
           })
         end
       end

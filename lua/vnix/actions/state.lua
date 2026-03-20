@@ -162,6 +162,10 @@ function _M.reset_flat_state()
       workspace = workspace.name,
       cwd = pane.cwd or tab.cwd or workspace.cwd,
       meta = pane.meta,
+      lazy_status = (not workspace.lazy and not tab.lazy and "")
+        or (workspace.lazy and not workspace.lazy_loaded and "workspace")
+        or (tab.lazy and not tab.lazy_loaded and "tab")
+        or "loaded",
     }
 
     table.insert(out, entry)

@@ -3,6 +3,13 @@ local resp = require("nvim.resp")
 
 ---@type snacks.picker.Config
 local common = {
+  lazy_statuses = {
+    [""] = "🔵",
+    ["workspace"] = "🟥",
+    ["tab"] = "🔴",
+    ["lazy"] = "🟢",
+    ["lazy_loaded"] = "🟡",
+  },
   ---@param item {id: number | string, value: VnixPaneFlat}
   confirm = function(self, item)
     local kind = self.opts.source

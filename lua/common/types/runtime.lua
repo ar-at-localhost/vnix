@@ -42,4 +42,5 @@
 ---@field workspace string
 ---@field cwd? string
 ---@field meta? table<string, unknown>
+---@field lazy_status? '' | 'workspace' | 'tab' | 'loaded'
 ---@alias VnixPanesFlat VnixPaneFlat[]

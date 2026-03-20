@@ -18,10 +18,11 @@ local function to_item(id, pane)
     score = 0,
 
     text = string.format(
-      "%s > %s > %s",
-      str.pad(pane.workspace, 16),
-      str.pad(pane.tab_name, 16),
-      str.pad(pane.pane_name, 16)
+      "%s %s > %s > %s",
+      switch.lazy_statuses[pane.lazy_status],
+      str.pad(pane.workspace, 20),
+      str.pad(pane.tab_name, 20),
+      str.pad(pane.pane_name, 20)
     ),
 
     preview = {

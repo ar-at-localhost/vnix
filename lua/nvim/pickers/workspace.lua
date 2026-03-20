@@ -28,8 +28,8 @@ local M = vim.tbl_extend(
           table.insert(items, {
             id = v.workspace,
             name = v.workspace,
-            text = v.workspace,
-            value = v.workspace,
+            text = string.format("%s %s", switch.lazy_statuses[v.lazy_status], v.workspace),
+            value = v,
           })
         end
       end
