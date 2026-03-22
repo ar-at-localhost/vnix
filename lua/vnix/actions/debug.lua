@@ -12,6 +12,7 @@ wezterm.on(
       id = 0,
       type = "debug",
       return_to = 0,
+      workspace = "",
       data = nil,
       pid = wezterm.procinfo.pid(),
     }
@@ -47,6 +48,7 @@ wezterm.on(
     rpc.dispatch(win, pane, {
       id = 0,
       type = "debug",
+      workspace = "",
       timestamp = "",
       return_to = 0,
       data = {

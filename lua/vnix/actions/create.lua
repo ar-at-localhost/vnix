@@ -25,7 +25,7 @@ function M.create_workspace(win, pane, data, callback)
   end
 
   local workspace, _ = mux.create_workspace(flat)
-  state.save_workspace(workspace)
+  state:save_workspace(workspace)
 
   win:perform_action(
     wezterm.action.SwitchToWorkspace({
@@ -39,9 +39,6 @@ function M.create_workspace(win, pane, data, callback)
 
   if callback then
     callback()
-  else
-    -- FIXME: It should've been operation limited to new workspace (`init` would do everything)
-    wezterm.emit("vnix:state-update", win, "init")
   end
 end
 
@@ -61,14 +58,14 @@ function M.create_tab(win, pane, data, callback)
     error("Unable to acquire active mux window!")
   end
 
-  local workspace = state.find_workspace_by_name(pane_info.workspace)
+  local workspace = state:find_workspace_by_name(pane_info.workspace)
   if not workspace then
     error("Unable to acquire active workspace!")
   end
 
   data.cwd = data.cwd or workspace.cwd
-  local tab = mux.create_tab(data, mux_win, workspace.name, #workspace.tabs)
-  local _, _, count = state.save_tab(tab)
+  local tab = mux.create_tab(data, mux_win, #workspace.tabs)
+  local _, _, count = state:save_tab(tab)
 
   win:perform_action(
     wezterm.action.SwitchToWorkspace({
@@ -81,9 +78,6 @@ function M.create_tab(win, pane, data, callback)
 
   if callback then
     callback()
-  else
-    -- FIXME: It should've been operation limited to new workspace (`init` would do everything)
-    wezterm.emit("vnix:state-update", win, "init")
   end
 end
 
@@ -102,6 +96,7 @@ events.make_event(
       {
         id = 0,
         return_to = 0,
+        workspace = "",
         type = "create",
         data = t,
       } ---@type UIMessageCreateReq

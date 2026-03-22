@@ -16,14 +16,6 @@
       "cwd": "/projects/ar/vnix"
     },
     {
-      "cmd": "top",
-      "title": "top",
-      "desc": "top process moniter",
-      "autostart": false,
-      "preview": true,
-      "cwd": "/projects/ar/vnix"
-    },
-    {
       "cmd": "pkill -f vnix-dev",
       "title": "Kill vnix-dev",
       "desc": "Kill vnix-dev",
@@ -78,6 +70,14 @@
           "title": "Status",
           "cmd": "git status",
           "desc": "Check git status"
+        },
+        {
+          "cmd": "top",
+          "title": "top",
+          "desc": "top process moniter",
+          "autostart": false,
+          "preview": true,
+          "cwd": "/projects/ar/vnix"
         }
       ]
     }

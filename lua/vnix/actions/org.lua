@@ -13,6 +13,7 @@ events.make_event(
       id = 0,
       type = "org",
       return_to = 0,
+      workspace = "",
       data = "tasks",
       pid = wezterm.procinfo.pid(),
     }
@@ -31,6 +32,7 @@ events.make_event(
     local payload = {
       id = 0,
       type = "org",
+      workspace = "",
       return_to = 0,
       data = "files",
       pid = wezterm.procinfo.pid(),

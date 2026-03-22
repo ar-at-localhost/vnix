@@ -12,10 +12,9 @@
 
 ---@class VnixActivePickers
 ---@field switch? VnixActivePicker
----@field procs? VnixProcsActivePicker
+---@field procs? VnixProcsPickerRuntime
 ---@field orgtasks? VnixActivePickers
 ---@field orgfiles? VnixActivePickers
 
----@class VnixProcsActivePicker :VnixActivePickerBase
----@field source 'procs'
----@field state snacks.Picker?
+---@class VnixProcsPickerRuntime :snacks.Picker
+---@field opts VnixProcsPickerConfig

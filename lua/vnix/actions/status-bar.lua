@@ -1,8 +1,8 @@
 local wezterm = require("wezterm")
 local common = require("common")
-local vnix_mux = require("vnix.mux")
 local rpc = require("vnix.rpc")
 local events = require("vnix.events")
+local procs = require("vnix.actions.procs")
 local vnix = wezterm.GLOBAL.vnix
 
 ---@class Config
@@ -33,14 +33,15 @@ local colors = load_colors()
 
 wezterm.on("update-status", function(win, pane)
   wezterm.emit("vnix:update-status", win, pane)
-  if vnix.ui_req and vnix.ui_req.type == "procs" then
-    wezterm.emit("vnix:procs-refresh", win, pane)
-  end
+  pcall(function()
+    procs.refresh_procs()
+  end)
 end)
 
 wezterm.on(
   "vnix:update-status",
   ---@param win Window
+  ---@diagnostic disable-next-line: unused-local
   function(win, pane)
     if not vnix then
       return
@@ -146,7 +147,10 @@ wezterm.on(
 ---@param onshot? boolean
 local function sync_status(onshot)
   if vnix and vnix.is_ready then
-    vnix.status = rpc.get_status() or nil
+    pcall(function()
+      vnix.status = rpc.get_status() or nil
+    end)
+
     if not onshot then
       wezterm.time.call_after(60, sync_status)
     end

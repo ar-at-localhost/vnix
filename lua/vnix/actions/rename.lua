@@ -22,12 +22,7 @@ function M.rename_workspace(win, pane, target, name, skip_update)
   end
 
   mux_workspace:set_workspace(name)
-  state.rename_workspace(target, name)
-
-  if not skip_update then
-    -- FIXME: It should've been operation limited to new workspace (`init` would do everything)
-    wezterm.emit("vnix:state-update", win, "init")
-  end
+  state:rename_workspace(target, name)
 end
 
 ---Raname tab
@@ -44,18 +39,13 @@ function M.rename_tab(win, pane, tid, name, skip_update)
   end
 
   local workspace_name = mux_win:get_workspace() or ""
-  local workspace = state.find_workspace_by_name(workspace_name)
+  local workspace = state:find_workspace_by_name(workspace_name)
   if not workspace then
     error(string.format("No such workspace: %s", workspace_name))
   end
 
   tab:set_title(name)
-  state.rename_tab(workspace, tid, name)
-
-  if not skip_update then
-    -- FIXME: It should've been operation limited to new workspace (`init` would do everything)
-    wezterm.emit("vnix:state-update", win, "init")
-  end
+  state:rename_tab(workspace, tid, name)
 end
 
 ---Raname pane
@@ -71,12 +61,7 @@ function M.rename_pane(win, pane, pid, name, skip_update)
     error(string.format("No such pane: %d", pid))
   end
 
-  state.rename_pane(pid, name)
-
-  if not skip_update then
-    -- FIXME: It should've been operation limited to new workspace (`init` would do everything)
-    wezterm.emit("vnix:state-update", win, "init")
-  end
+  state:rename_pane(pid, name)
 end
 
 events.make_event("vnix:rename-workspace", M.rename_workspace)
@@ -99,6 +84,7 @@ events.make_event(
       id = 0,
       timestamp = "",
       return_to = 0,
+      workspace = "",
       data = {
         kind = kind,
       },
@@ -133,11 +119,6 @@ events.make_event(
     end
 
     wezterm.emit("vnix:switch-to-last-active-pane", win)
-
-    if all then
-      -- FIXME: It should've been operation limited to new workspace (`init` would do everything)
-      wezterm.emit("vnix:state-update", win, "init")
-    end
   end
 )
 

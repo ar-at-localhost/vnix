@@ -1,6 +1,5 @@
 local wezterm = require("wezterm")
 local state = require("vnix.state")
-local activity = require("vnix.activity")
 local mux = wezterm.mux
 local vnix = wezterm.GLOBAL.vnix
 local events = require("vnix.events")
@@ -36,52 +35,15 @@ events.make_event(
         id = 0,
         return_to = 0,
         timestamp = "",
+        workspace = "",
         data = kind == "primary" and vnix.specs_file_primary or vnix.specs_file_secondary,
       }
     )
   end
 )
 
-wezterm.on(
-  "vnix:state-update",
-  ---cb
-  ---@param win Window
-  ---@param trigger_type 'init'| 'constructive' | 'effective' | nil
-  function(win, trigger_type)
-    local workspace = win:active_workspace()
-    local tab = win:active_tab()
-    local pane = win:active_pane()
-
-    pcall(function()
-      if
-        trigger_type == "init"
-        or trigger_type == "constructive"
-        or trigger_type == "effective"
-      then
-        if trigger_type == "init" then
-          _M.reset_all_panes_info()
-        else
-          _M.reset_panes_info(workspace, tab)
-        end
-
-        _M.reset_flat_state()
-      elseif trigger_type == "constructive" then
-        _M.reset_panes_info(workspace, tab)
-      end
-    end)
-
-    local found_pane = state.find_pane_by_id(pane:pane_id())
-    if found_pane then
-      activity.set_focused_pane(found_pane)
-    end
-
-    state.save()
-    wezterm.emit("vnix:update-status", win, pane)
-  end
-)
-
 function _M.reset_all_panes_info()
-  local workspaces = state.get_workspaces()
+  local workspaces = state:get_workspaces()
   local windows = mux.all_windows()
   for _, wo in ipairs(workspaces) do
     local w ---@type MuxWindow
@@ -102,14 +64,14 @@ function _M.reset_all_panes_info()
 end
 
 function _M.reset_panes_info(workspace_name, tab, tab_idx)
-  local workspace, _ = state.find_workspace_by_name(workspace_name)
+  local workspace, _ = state:find_workspace_by_name(workspace_name)
   if not workspace then
     return
   end
 
   local tab_id = tab:tab_id()
   local tab_name = tab:get_title()
-  local tab_state = state.find_tab_by_id(workspace, tab_id)
+  local tab_state = state:find_tab_by_id(workspace, tab_id)
   if not tab_state then
     return
   end
@@ -120,7 +82,7 @@ function _M.reset_panes_info(workspace_name, tab, tab_idx)
     tab_state.idx = tab_idx
   end
 
-  state.traverse_pane(tab_state.pane, function(item)
+  state:traverse_pane(tab_state.pane, function(item)
     for _, v in ipairs(panes) do
       if v.pane:pane_id() == item.id then
         item.idx = v.index
@@ -138,40 +100,6 @@ function _M.reset_panes_info(workspace_name, tab, tab_idx)
       end
     end
   end)
-end
-
-function _M.reset_flat_state()
-  local out = {} ---@type VnixPanesFlat
-  local counter = 10000
-
-  state.traverse_all_panes(function(pane, tab, workspace)
-    counter = counter + 1
-
-    ---@type VnixPaneFlat
-    local entry = {
-      pane_id = (
-        (workspace.lazy and not workspace.lazy_loaded) or (tab.lazy and not tab.lazy_loaded)
-      )
-          and counter
-        or pane.id,
-      pane_idx = pane.idx,
-      pane_name = pane.name,
-      tab_id = tab.id,
-      tab_idx = tab.idx,
-      tab_name = tab.name,
-      workspace = workspace.name,
-      cwd = pane.cwd or tab.cwd or workspace.cwd,
-      meta = pane.meta,
-      lazy_status = (not workspace.lazy and not tab.lazy and "")
-        or (workspace.lazy and not workspace.lazy_loaded and "workspace")
-        or (tab.lazy and not tab.lazy_loaded and "tab")
-        or "loaded",
-    }
-
-    table.insert(out, entry)
-  end)
-
-  vnix.runtime.panes = out
 end
 
 return _M

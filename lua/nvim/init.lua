@@ -2,6 +2,7 @@ local M = {}
 
 ---@param opts VNixNvimOpts
 function M.setup(opts)
+  local resp = require("nvim.resp")
   local o = require("nvim.config")
   if (o and o.vnix_dir and o.vnix_dir ~= "") and not o.dev then
     return

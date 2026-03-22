@@ -40,6 +40,7 @@ function M.apply_to_config(config, opts)
     or config.status_update_interval
     or nil
 
+  print("Lost...")
   local debug = require("vnix.debug")
   debug.handle_reload()
 end

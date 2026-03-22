@@ -5,7 +5,7 @@ local function init()
   local vnix = {
     vnix_dir = "",
     src_dir = "",
-    flat_panes = {},
+    panes = {},
     active_pane = nil,
     workspaces = {},
     procs = {},

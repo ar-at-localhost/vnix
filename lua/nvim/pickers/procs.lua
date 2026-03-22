@@ -1,6 +1,4 @@
-local common = require("common")
 local t = require("common.time")
-local config = require("nvim.config")
 local resp = require("nvim.resp")
 
 ---@class snacks.picker
@@ -8,6 +6,7 @@ local resp = require("nvim.resp")
 
 ---@class VnixProcsPickerConfig :snacks.picker.Config
 ---@field workspace string?
+---@field procs? VnixProcRuntime[]
 
 ---@class VnixProcsPickerItem
 ---@field proc VnixProcRuntime
@@ -62,6 +61,7 @@ local procs_picker_opts = {
 
   ---@param item SnacksOrgTasksPickerItem
   ---@param picker SnacksOrgTasksPicker
+  ---@diagnostic disable-next-line: unused-local
   format = function(item, picker)
     return {
       {
@@ -75,19 +75,10 @@ local procs_picker_opts = {
   ---@param opts VnixProcsPickerConfig
   finder = function(opts)
     local items = {}
-    local procs = {}
+    ---@type VnixProcRuntime[]
+    local procs = opts.procs or {}
 
-    if opts.workspace ~= common.vnix_token then
-      for i, v in ipairs(config.workspaces) do
-        if v.name == opts.workspace then
-          procs = v.procs
-        end
-      end
-    end
-
-    procs = procs or config.procs
-
-    for _, v in ipairs(procs) do
+    for _, v in pairs(procs) do
       local status_formatted = v.status and v.status:gsub("%l^", string.upper) or ""
       local last_updated = v.last_updated or nil
       local last_updated_formatted = ""
@@ -112,7 +103,7 @@ local procs_picker_opts = {
 **Status**: %s
 **Last updated**: %s
 **Preview**:
-```
+```sh
 %s
 ```
 ]],
@@ -120,7 +111,7 @@ local procs_picker_opts = {
             v.workspace,
             status_formatted,
             last_updated_formatted,
-            v.preview and (v.scrollback or "") or ""
+            (v.preview and (v.scrollback or "") or "")
           ),
         },
       })
@@ -170,7 +161,7 @@ local procs_picker_opts = {
 
 ---@type SnacksOrgFilePickerOpts
 local M = vim.tbl_extend("force", {
-  ft = "org",
+  ft = "text",
   title_format = "both",
   auto_confirm = false,
   auto_close = false,

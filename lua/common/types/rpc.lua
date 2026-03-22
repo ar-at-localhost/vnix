@@ -4,6 +4,7 @@
 
 ---@class UIMessageReqBase<UIMessageData>
 ---@field id number
+---@field workspace string
 ---@field return_to number
 ---@field timestamp? string
 ---@field type UIMessageType
@@ -77,11 +78,11 @@
 --------------------------------------------------------------------------------
 ---@class UIMessageSwitchReq :UIMessageReqBase
 ---@field type 'switch'
----@field data nil
+---@field data VnixPaneRecency
 
 ---@class UIMessageSwitchResp :UIMessageRespBase
 ---@field type 'switch'
----@field data UIMessageSWitchRespData
+---@field data? UIMessageSWitchRespData
 
 ---@class UIMessageSWitchRespData
 ---@field workspace string
@@ -111,10 +112,11 @@
 
 ---@class UIMessageOrgRespData
 ---@field sync_clock? boolean
+
 --------------------------------------------------------------------------------
 ---@class UIMessageProcsReq :UIMessageReqBase
 ---@field type 'procs'
----@field data nil
+---@field data VnixProcRuntime[]
 
 ---@class UIMessageProcsResp :UIMessageRespBase
 ---@field data UIMessageProcsRespData

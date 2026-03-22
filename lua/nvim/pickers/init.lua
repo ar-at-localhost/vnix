@@ -1,15 +1,11 @@
-local workspace = require("nvim.pickers.workspace")
-local pane = require("nvim.pickers.pane")
-local tab = require("nvim.pickers.tab")
 local orgtasks = require("nvim.pickers.org.tasks")
 local files = require("nvim.pickers.org.files")
 local procs = require("nvim.pickers.procs")
+local switch = require("nvim.pickers.switch")
 
 ---@type VnixPickers
 local M = {
-  workspace = workspace,
-  tab = tab,
-  pane = pane,
+  switch = switch,
   procs = procs,
   orgtasks = orgtasks,
   orgfiles = files,

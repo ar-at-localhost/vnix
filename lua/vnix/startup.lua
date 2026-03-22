@@ -113,7 +113,7 @@ function M.restore(arg)
         table.insert(workspaces, workspace)
       end
 
-      vnix.runtime.workspaces = workspaces
+      state:set_workspaces(workspaces)
       M._notify()
     end)
   end
@@ -132,17 +132,12 @@ function M._notify()
   if vnix.runtime and vnix.runtime.active_pane then
     local ap = vnix.runtime.active_pane
     if ap then
-      pane = state.find_pane_by_names(ap.workspace, ap.tab, ap.name)
+      pane = state:find_pane_by_names(ap.workspace, ap.tab, ap.name)
     end
   end
 
   if gui_win then
     switch_actions.switch_to_pane_action(gui_win, pane)
-  end
-
-  wezterm.emit("vnix:state-update", gui_win, "init")
-  if gui_win then
-    wezterm.emit("vnix:procs-refresh", gui_win, gui_win:active_pane())
   end
 end
 

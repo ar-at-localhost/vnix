@@ -1,8 +1,9 @@
 local wezterm = require("wezterm")
+local state = require("vnix.state")
 
 local function resize(win, pane, dir)
   win:perform_action(wezterm.action.AdjustPaneSize({ dir, 5 }), pane)
-  wezterm.emit("vnix:state-update", "effective")
+  state:update_pane(pane)
 end
 
 wezterm.on("vnix:resize_right", function(win, pane)

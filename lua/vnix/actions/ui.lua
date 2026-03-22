@@ -21,7 +21,12 @@ end)
 
 ---Event: UI Response
 ---@param args UIMessageReqBase
-wezterm.on("vnix:ui-req", function(args)
+---@param cb? fun
+wezterm.on("vnix:ui-req", function(args, cb)
   local vnix = wezterm.GLOBAL.vnix
   fs.write_json(string.format("%s/req.json", vnix.vnix_dir), args)
+
+  if cb then
+    cb()
+  end
 end)

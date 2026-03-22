@@ -15,6 +15,9 @@ function M.load_from_file(path)
   ---@type VnixRuntime
   local res = fs.safe_read_json(path, {})
   res.active_pane = res.active_pane or nil
+  res.recency_counter = 0
+  res.recency = res.recency or {}
+
   res.focus = res.focus or {
     tab = {},
     workspace = {},

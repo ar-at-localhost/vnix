@@ -76,7 +76,7 @@
 ---@field vnix_dir string vnix directory path
 ---@field src_dir? string vnix directory path
 ---@field _ns integer unknown
----@field flat_panes VnixPanesFlat Vnix panes state
+---@field panes VnixPanesFlat Vnix panes state
 ---@field active_pane VnixPaneRuntime?
 ---@field workspaces VnixWorkspace[] Vnix panes state
 ---@field procs VnixProcRuntime[] Vnix panes state

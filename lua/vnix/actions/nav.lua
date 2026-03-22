@@ -1,20 +1,20 @@
 local wezterm = require("wezterm")
-local common = require("common")
 local state = require("vnix.state")
 local activity = require("vnix.activity")
-local mux = require("vnix.mux")
+local switch_actions = require("vnix.actions.switch")
 local vnix = wezterm.GLOBAL.vnix
 
 -- Helper to perform a WezTerm action and refresh vnix state
 local function navigate(win, pane, action)
   win:perform_action(action, pane)
-  wezterm.emit("vnix:state-update", win, "effective")
+  switch_actions.sync_pane(win)
 end
 
 ---Workspace navigation
 ---@param win Window
 ---@param pane Pane
 ---@param offset? integer
+---@diagnostic disable-next-line: unused-local
 local function switch_workspace(win, pane, offset)
   local active_pane = vnix.runtime.active_pane
 
@@ -22,11 +22,12 @@ local function switch_workspace(win, pane, offset)
     return
   end
 
-  local current_workspace, idx = state.find_workspace_by_name(active_pane.workspace)
+  local current_workspace, idx = state:find_workspace_by_name(active_pane.workspace)
   if not current_workspace or not idx then
     return
   end
 
+  ---@type VnixWorkspaceRuntime
   local target = nil
   while true do
     local total_workspaces = #vnix.runtime.workspaces
@@ -48,38 +49,27 @@ local function switch_workspace(win, pane, offset)
     return
   end
 
-  win:perform_action(wezterm.action.SwitchToWorkspace({ name = target.name }), pane)
-
   local focused_pane = activity.lookup_focused_pane(target.name)
-  if focused_pane then
-    local _, tab_idx = state.find_tab_by_id(target, focused_pane.tab_id)
-    if tab_idx then
-      win:perform_action(wezterm.action.ActivateTab(tab_idx), pane)
-      win:perform_action(wezterm.action.ActivatePaneByIndex(focused_pane.idx), pane)
-    end
-  end
-
-  wezterm.emit("vnix:state-update", win, "effective")
+  switch_actions.switch_to_pane_action(win, focused_pane or target.tabs[1].pane)
 end
 
 ---Tab navigation (relative to current tab)
 ---@param win Window
 ---@param pane Pane
 ---@param offset_or_idx? integer Provide +1/-1 or exact index (except 1 - which will be taken as `offset`)
+---@diagnostic disable-next-line: unused-local
 local function switch_tab(win, pane, offset_or_idx)
-  local index = 0
   local active_pane = vnix.runtime.active_pane
+  ---@type VnixTabRuntime
+  local target
 
-  if offset_or_idx ~= 1 and offset_or_idx ~= -1 then
-    index = offset_or_idx
-  elseif active_pane then
-    local workspace = state.find_workspace_by_name(active_pane.workspace)
+  if active_pane then
+    local workspace = state:find_workspace_by_name(active_pane.workspace)
+
     if workspace then
-      local active_tab, tab_idx = state.find_tab_by_id(workspace, active_pane.tab_id)
+      local active_tab, tab_idx = state:find_tab_by_id(workspace, active_pane.tab_id)
 
       if active_tab and tab_idx then
-        ---@type VnixTabRuntime?
-        local target_tab
         while true do
           tab_idx = (((tab_idx - 1) + offset_or_idx) % #workspace.tabs) + 1
           local candidate = workspace.tabs[tab_idx]
@@ -88,24 +78,21 @@ local function switch_tab(win, pane, offset_or_idx)
             break
           end
           if not candidate.lazy or candidate.lazy_loaded then
-            target_tab = candidate
+            target = candidate
             break
           end
           -- lazy and not loaded: skip, continue iterating
         end
-
-        if target_tab then
-          local _, i = mux.find_tab(target_tab.id)
-          if i then
-            index = i
-          end
-        end
       end
     end
-  end
 
-  win:perform_action(wezterm.action.ActivateTab(index), pane)
-  wezterm.emit("vnix:state-update", win, "effective")
+    if target then
+      switch_actions.switch_to_pane_action(
+        win,
+        vnix.runtime.focus[active_pane.workspace .. "." .. target.name] or target.pane
+      )
+    end
+  end
 end
 
 -- Pane navigation
@@ -151,11 +138,13 @@ wezterm.on("vnix:nav-workspace-prev", function(win, pane)
   switch_workspace(win, pane, -1)
 end)
 
+---@diagnostic disable-next-line: unused-local
 wezterm.on("vnix:nav-workspace-first", function(win, pane)
   -- TODO: Restore
   -- switch_workspace(win, pane, 0)
 end)
 
+---@diagnostic disable-next-line: unused-local
 wezterm.on("vnix:nav-workspace-last", function(win, pane)
   -- TODO: Restore
   -- switch_workspace(win, pane, #vnix.runtime.workspaces)

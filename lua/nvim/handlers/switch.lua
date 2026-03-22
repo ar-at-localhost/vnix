@@ -13,7 +13,8 @@ function M.handle(req)
       type = "switch",
       id = 0,
       timestamp = "",
-      data = nil,
+      workspace = "",
+      data = {},
       return_to = vnix.return_to,
     }
 
@@ -23,17 +24,13 @@ function M.handle(req)
     end
   end
 
-  local picker_src = config.pickers.switch and config.pickers.switch.source or "pane"
-
   local picker = Snacks.picker.resume({
-    source = picker_src,
+    source = "switch",
   })
 
-  if picker_src ~= "pane" then
-    pcall(function()
-      picker:refresh()
-    end)
-  end
+  pcall(function()
+    picker:refresh()
+  end)
 end
 
 return M

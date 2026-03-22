@@ -4,12 +4,12 @@ local M = {}
 
 local function handle_runtime(filepath)
   local data = fs.read_json(filepath)
+  ---@cast data VnixRuntime
   if data then
-    ---@cast data VnixRuntime
-    pcall(require("nvim.state").process, data.panes)
     config.workspaces = data.workspaces
     config.active_pane = data.active_pane
     config.procs = data.procs
+    config.panes = data.panes
 
     for _, w in pairs(config.workspaces) do
       if w.orgpath and type(w.orgpath) == "string" then
@@ -20,10 +20,6 @@ local function handle_runtime(filepath)
         w.orgpath = nil
       end
     end
-
-    pcall(function()
-      config.pickers.procs.state:refresh()
-    end)
   end
 end
 

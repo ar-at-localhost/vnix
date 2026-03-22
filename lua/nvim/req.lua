@@ -3,7 +3,7 @@ local M = {}
 
 ---@param req UIMessageReqBase
 function M.handle_request(req)
-  if req.type ~= "launch" and req.id <= config.last_known_req then
+  if req.type ~= "launch" and req.type ~= "procs" and req.id <= config.last_known_req then
     return
   else
     config.last_known_req = req.id

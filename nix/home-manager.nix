@@ -298,6 +298,7 @@
   in ''
     local wezterm = require("wezterm")
     local config = wezterm.config_builder()
+    config.automatically_reload_config = false
 
     -- [[BEGIN EXTRA CONFIG LUA BEFORE]]
     do

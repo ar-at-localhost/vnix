@@ -73,7 +73,7 @@ local M = vim.tbl_extend(
     layout = "dropdown",
 
     finder = function()
-      return to_items(config.flat_panes)
+      return to_items(config.panes)
     end,
   }
 )

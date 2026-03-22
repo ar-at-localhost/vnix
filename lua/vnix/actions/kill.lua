@@ -24,7 +24,7 @@ function M.kill(win, pane)
   )
 
   local pane_state, tab_state, tab_idx, workspace_state, workspace_idx, parent_pane_state =
-    state.find_pane_by_id(active_pane.id)
+    state:find_pane_by_id(active_pane.id)
 
   if not pane_state or not tab_state then
     error("Failed to acquire active objects")
@@ -45,8 +45,6 @@ function M.kill(win, pane)
     M.kill_tab(win, pane, workspace_state, workspace_idx, tab_state, tab_idx)
   else
     vnix.runtime.active_pane = nil
-    -- FIXME: It should've be 'constructive' event instead
-    wezterm.emit("vnix:state-update", win, "init")
   end
 end
 
@@ -66,7 +64,7 @@ function M.kill_tab(win, pane, workspace, workspace_idx, tab, tab_idx)
       error("Unable to acquire active pane.")
     end
 
-    _, t, ti, w, wi = state.find_pane_by_id(pane:pane_id())
+    _, t, ti, w, wi = state:find_pane_by_id(pane:pane_id())
 
     win:perform_action(
       wezterm.action.CloseCurrentTab({
@@ -82,7 +80,7 @@ function M.kill_tab(win, pane, workspace, workspace_idx, tab, tab_idx)
     error("Unable to acquire active objects.")
   end
 
-  state.remove_tab(w, ti)
+  state:remove_tab(w, ti)
   vnix.runtime.focus[w.name] = nil
   vnix.runtime.focus[w.name .. "." .. t.id] = nil
 
@@ -91,7 +89,6 @@ function M.kill_tab(win, pane, workspace, workspace_idx, tab, tab_idx)
   else
     local idx = ti - 1
     win:perform_action(wezterm.action.ActivateTab(idx), pane)
-    wezterm.emit("vnix:state-update", win, "init")
   end
 end
 
@@ -109,7 +106,7 @@ function M.kill_workspace(win, pane, workspace, workspace_idx)
       error("No active pane.")
     end
 
-    _, _, _, w, wi = state.find_pane_by_id(pane:pane_id())
+    _, _, _, w, wi = state:find_pane_by_id(pane:pane_id())
     if not w or not wi then
       error("Unable to acquire state objects.")
     end
@@ -134,11 +131,10 @@ function M.kill_workspace(win, pane, workspace, workspace_idx)
 
     wezterm.emit("vnix:create-workspace", win, pane, spec, function()
       win:perform_action(wezterm.action.SwitchToWorkspace({ name = spec.name }), pane)
-      state.remove_workspace(MIN_WORKSPACES)
-      wezterm.emit("vnix:state-update", win, "init")
+      state:remove_workspace(MIN_WORKSPACES)
     end)
   elseif wi then
-    state.remove_workspace(wi)
+    state:remove_workspace(wi)
     local new_workspace = vnix.runtime.workspaces[wi]
       or vnix.runtime.workspaces[wi + 1]
       or vnix.runtime.workspaces[wi - 1]
@@ -158,8 +154,6 @@ function M.kill_workspace(win, pane, workspace, workspace_idx)
         vnix.runtime.focus[k] = nil
       end
     end
-
-    wezterm.emit("vnix:state-update", win, "init")
   end
 end
 

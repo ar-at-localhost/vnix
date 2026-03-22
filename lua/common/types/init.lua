@@ -33,8 +33,12 @@
 ---@field focus VnixFocus
 ---@field procs VnixProcRuntime[]
 ---@field workspaces VnixWorkspaceRuntime[]
----@field panes VnixPanesFlat
+---@field recency_counter integer
+---@field recency VnixPaneRecency
 ---@field sock_path string
+---@field panes VnixPaneFlat[]
+
+---@alias VnixPaneRecency table<integer, integer>
 
 --------------------------------------------------------------------------------
 ---@class VnixStatus

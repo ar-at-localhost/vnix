@@ -29,7 +29,8 @@ end
 ---@param win Window
 ---@param pane Pane
 ---@param args UIMessageReqBase
-function M.dispatch(win, pane, args)
+---@param cb? fun(req: UIMessageReqBase)
+function M.dispatch(win, pane, args, cb)
   -- Store current pane index for potential return navigation
   ---@diagnostic disable-next-line: unused-local
   local active_pane = vnix.runtime.active_pane
@@ -39,15 +40,19 @@ function M.dispatch(win, pane, args)
   local action_data = args or nil
 
   if action_data then
+    action_data.workspace = active_pane and active_pane.workspace or ""
     action_data.id = vnix.ui_next_req
     action_data.timestamp = time.iso_timestamp()
-    action_data.return_to = active_pane and action_data.id or 0
+    action_data.return_to = active_pane and active_pane.id or 0
     vnix.ui_next_req = vnix.ui_next_req + 1
-
-    wezterm.emit("vnix:ui-req", action_data)
   end
 
   vnix.ui_req = args
+  wezterm.emit("vnix:ui-req", action_data, function()
+    if cb then
+      cb(vnix.ui_req)
+    end
+  end)
 
   -- Switch to vnix workspace for user interaction
   win:perform_action(
@@ -58,6 +63,13 @@ function M.dispatch(win, pane, args)
   )
 
   win:perform_action(act.ActivateTab(0), pane)
+  return action_data
+end
+
+---Reply RPC Action
+---@param args UIMessageReqBase
+function M.replay(args)
+  wezterm.emit("vnix:ui-req", args)
 end
 
 --- Parse the incoming message from Nvim RPC

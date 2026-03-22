@@ -40,6 +40,7 @@
 ---@field tab_idx number
 ---@field tab_name string
 ---@field workspace string
+---@field recency integer
 ---@field cwd? string
 ---@field meta? table<string, unknown>
 ---@field lazy_status? '' | 'workspace' | 'tab' | 'loaded'

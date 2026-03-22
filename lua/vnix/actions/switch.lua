@@ -45,6 +45,7 @@ function M.switch_to_pane_action(win, pane)
   M.switch_to_tab_action(win, pane.workspace, pane.tab_idx)
   win:perform_action(wezterm.action.ActivatePaneByIndex(idx), win:active_pane())
   vnix.runtime.active_pane = pane
+  M._update_recency()
 end
 
 ---@param win Window
@@ -55,7 +56,7 @@ function M.switch_to_workspace(win, workspace, workspace_idx)
 
   if workspace.lazy and not workspace.lazy_loaded then
     ---@diagnostic disable-next-line: cast-type-mismatch
-    workspace = state.load_workspace(win, workspace, workspace_idx)
+    workspace = state:load_workspace(workspace, workspace_idx)
     pane = workspace.tabs[1].pane
     pane.idx = 0
   else
@@ -77,7 +78,7 @@ function M.switch_to_tab(win, workspace, tab, tab_idx)
 
   if tab and tab_idx then
     if tab.lazy and not tab.lazy_loaded then
-      tab = state.load_tab(win, workspace.name, tab, tab_idx)
+      tab = state:load_tab(workspace.name, tab, tab_idx)
       pane = tab.pane
       pane.idx = 0
     else
@@ -87,6 +88,21 @@ function M.switch_to_tab(win, workspace, tab, tab_idx)
     if pane then
       M.switch_to_pane_action(win, pane)
     end
+  end
+end
+
+---@param win Window
+function M.sync_pane(win)
+  local pane = win:active_pane()
+  local pane_state = state:find_pane_by_id(pane and pane:pane_id() or 0)
+  vnix.runtime.active_pane = pane_state or vnix.runtime.active_pane
+  M._update_recency()
+end
+
+function M._update_recency()
+  if vnix.runtime.active_pane then
+    vnix.runtime.recency_counter = vnix.runtime.recency_counter + 1
+    vnix.runtime.recency[tostring(vnix.runtime.active_pane.id)] = vnix.runtime.recency_counter
   end
 end
 
@@ -100,7 +116,8 @@ wezterm.on("vnix:switch", function(win, pane)
     id = 0,
     return_to = 0,
     type = "switch",
-    data = nil,
+    workspace = "",
+    data = vnix.runtime.recency or {},
   })
 end)
 
@@ -110,7 +127,7 @@ events.make_event(
   ---@param id integer
   ---@param force? boolean
   function(win, id, force)
-    local pane = state.find_pane_by_id(id)
+    local pane = state:find_pane_by_id(id)
     if pane or force then
       M.switch_to_pane_action(win, pane)
     end
@@ -134,7 +151,7 @@ events.make_event(
   ---@param ctx? 'pane' | 'tab' | 'workspace'
   function(win, workspace_name, tab_name, pane_name, ctx)
     local pane, _, tab, ti, workspace, wi =
-      state.find_pane_by_names(workspace_name, tab_name, pane_name)
+      state:find_pane_by_names(workspace_name, tab_name, pane_name)
 
     if not pane or not tab or not ti or not workspace or not wi then
       error("No such pane.")

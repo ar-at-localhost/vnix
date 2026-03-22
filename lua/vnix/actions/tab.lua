@@ -3,14 +3,15 @@ local events = require("vnix.events")
 local state = require("vnix.state")
 local vnix = wezterm.GLOBAL.vnix
 
+---@diagnostic disable-next-line: unused-local
 events.make_event("vnix:swap-tab", function(win, pane, offset)
-  local p = vnix.runtime.active_pane or state.find_pane_by_id(pane:pane_id())
+  local p = vnix.runtime.active_pane or state:find_pane_by_id(pane:pane_id())
 
   if not p then
     error("Unable to acquire pane state!")
   end
 
-  local workspace = state.find_workspace_by_name(p.workspace)
+  local workspace = state:find_workspace_by_name(p.workspace)
   if not workspace then
     error("Unable to acquire workspace state!")
   end
@@ -20,7 +21,7 @@ events.make_event("vnix:swap-tab", function(win, pane, offset)
     return
   end
 
-  local found, idx = state.find_tab_by_id(workspace, p.tab_id)
+  local found, idx = state:find_tab_by_id(workspace, p.tab_id)
   if not found or not idx then
     error("Unable to acquire tab state!")
   end
@@ -32,7 +33,7 @@ events.make_event("vnix:swap-tab", function(win, pane, offset)
   end
 
   tabs[idx], tabs[swap_idx] = tabs[swap_idx], tabs[idx]
-  wezterm.emit("vnix:state-update", win, "init")
+  state:save_workspace(workspace)
 end)
 
 events.make_event("vnix:swap-tab-right", function(win, pane)
