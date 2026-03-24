@@ -93,7 +93,7 @@
 * TODO Supercharge Org Mode :feat:orgmode:
   :LOGBOOK:
   CLOCK: [2026-03-15 Sun 08:09]--[2026-03-15 Sun 08:48] => 0:39
-  CLOCK: [2026-03-14 Sat 15:15]--[2026-03-14 Sat 18:00] => 15:46
+  CLOCK: [2026-03-14 Sat 15:15]--[2026-03-14 Sat 18:00] => 02:45
   CLOCK: [2026-03-15 Sun 07:00]--[2026-03-15 Sun 07:35] => 0:35
   :END:
   Mixing Neovim orgmode with Vnix can bring some good features, especially for *DEV* workspaces.
@@ -139,11 +139,11 @@
 
 * TODO BUGS
 
-** TODO Search needs a touch
+** DONE Search needs a touch
    Due to async nature, if the Vnix-Nvim is loaded after the state write, it may miss the state update event,
    causing the search to be empty.
 
 ** Orgmode
-*** Clocked task isn't immediately available in status.
+*** DONE Clocked task isn't immediately available in status.
     This is because the task status is read periodically every minute,
     and until next cycle the task might't be in status bar.
