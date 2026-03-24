@@ -5,13 +5,22 @@ local helpers = require("nvim.org.helpers")
 local dashboard = require("nvim.dashboard")
 local M = {}
 
-local function get_org_dir()
-  local workspace_name = config.active_pane and config.active_pane.workspace
+---@param workspace string
+---@return string[]
+local function get_org_dirs(workspace)
+  local workspace_name = (workspace and workspace ~= "" and workspace) or nil
+
+  if not workspace_name then
+    return { config.vnix_dir }
+  end
+
   for _, v in ipairs(config.workspaces) do
     if v.name == workspace_name and v.orgpath and type(v.orgpath) == "string" then
-      return string.format("%s/%s", v.cwd, v.orgpath)
+      return { string.format("%s/%s", v.cwd, v.orgpath) }
     end
   end
+
+  return {}
 end
 
 ---@param arg UIMessageOrgReq
@@ -46,9 +55,7 @@ function M.handle(arg)
   local opts = {
     node = nil,
     level = 1,
-    dirs = {
-      config.vnix_dir,
-    },
+    dirs = get_org_dirs(arg.workspace),
     hooks = {
       after = {
         ["toggle_clock"] = function(i, p)
@@ -57,11 +64,6 @@ function M.handle(arg)
       },
     },
   }
-
-  local orgdir = get_org_dir()
-  if orgdir then
-    opts.dirs = { orgdir }
-  end
 
   if not arg.data then
     arg.data = "tasks"

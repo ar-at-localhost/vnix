@@ -3,6 +3,7 @@ local orgmode = require("orgmode")
 local orgmode_config = require("orgmode.config")
 local api = require("orgmode.api")
 local helpers = require("nvim.org.helpers")
+local tbl = require("common.tbl")
 
 ---@class snacks.picker
 ---@field orgtasks SnacksOrgTasksPicker
@@ -15,10 +16,14 @@ local helpers = require("nvim.org.helpers")
 ---@field sort SnacksOrgTasksPickerSort?
 ---@field level integer
 ---@field file string?
----@field keywords table<string, string>?
+---@field keywords string[]?
+---@field _keywords table<string, string>?
 ---@field node? OrgHeadline
 ---@field actions SnacksOrgTasksPickerActionsSpecs
 ---@field hooks? { after?: table<SnacksOrgTasksPickerAction, fun(item: SnacksOrgTasksPickerItem, picker: snacks.Picker, action?: SnacksOrgTasksPickerAction)> }
+
+---@class SnacksOrgTasksPickerFindarCtx :snacks.picker.finder.ctx
+---@field _opts SnacksOrgTasksPickerConfig
 
 ---@alias SnacksOrgTasksPickerActionsSpecs table<SnacksOrgTasksPickerAction, snacks.picker.Action.spec>
 ---@alias SnacksOrgTasksPickerAction 'priority_up' | 'priority_down' | 'toggle_clock' | 'refile' | 'refile_to_headline'
@@ -173,7 +178,7 @@ local picker = {
   format = function(item, picker)
     return {
       {
-        picker.opts.keywords[item.status and item.status or ""],
+        picker.opts._keywords[item.statusl and item.statusl] or "----",
         string.format("@org.keyword%s%s", item.statusl and "." or "", item.statusl or ""),
       },
       { " " },
@@ -187,6 +192,18 @@ local picker = {
   ---@return SnacksOrgTasksPickerItem[]
   finder = function(opts)
     orgmode.files:load_sync(true)
+
+    opts._keywords = opts._keywords
+      or tbl.map(
+        tbl.filter(orgmode_config.org_todo_keywords or {}, function(item)
+          return item ~= "|"
+        end),
+        ---@param item string
+        function(item)
+          return item:lower(), item:upper()
+        end
+      )
+
     local files = orgmode.files
     ---@type SnacksOrgTasksPickerItem[]
     local items = {}
@@ -234,7 +251,7 @@ local picker = {
   end,
 
   ---@param item SnacksOrgTasksPickerItem
-  ---@param ctx snacks.picker.finder.ctx
+  ---@param ctx SnacksOrgTasksPickerFindarCtx
   transform = function(item, ctx)
     local opts = ctx.picker.opts --[[@cast opts SnacksOrgTasksPickerConfig]]
     local parent = item.node:get_parent_headline()
@@ -244,6 +261,7 @@ local picker = {
 
     return (
       (item.level == o.level)
+      and (not o.keywords or (o.keywords[item.statusl] and true))
       and (not o.node or parent and o.node.file == parent.file and o.node.headline == parent.headline)
       and (not o.file or item.file == o.file)
     )

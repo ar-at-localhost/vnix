@@ -110,6 +110,40 @@ function M.find_one(tbl, check)
   end
 end
 
+---Filter in an array
+---@generic T
+---@param tbl T[]
+---@param check fun(item: T): boolean
+---@return T[]
+function M.filter(tbl, check)
+  local filtered = {}
+
+  for _, item in ipairs(tbl) do
+    if check(item) then
+      table.insert(filtered, item)
+    end
+  end
+
+  return filtered
+end
+
+---transform an array
+---@generic T
+---@generic U
+---@param tbl T[]
+---@param transform fun(item: T): string | number, U
+---@return U []
+function M.map(tbl, transform)
+  local mapped = {}
+
+  for key, item in ipairs(tbl) do
+    local k, i = transform(item)
+    mapped[k or key] = i
+  end
+
+  return mapped
+end
+
 function M.deep_merge(...)
   local result = {}
 
